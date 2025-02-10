@@ -3,7 +3,7 @@ import { createTheme } from "@mui/material";
 const theme = createTheme({
   palette: {
     primary: {
-      main: "#0097ff",
+      main: "#5951da",
       light: "#0000ff20",
     },
     secondary: {
@@ -35,7 +35,7 @@ const theme = createTheme({
     MuiCssBaseline: {
       styleOverrides: {
         ":root": {
-          "--mui-palette-primary-main": "#0097ff",
+          "--mui-palette-primary-main": "#5951da",
           "--mui-palette-primary-light": "#0000ff20",
           "--mui-palette-secondary-main": "#ff4081",
           "--mui-palette-secondary-light": "#ffffff",

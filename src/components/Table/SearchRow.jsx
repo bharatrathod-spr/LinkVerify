@@ -1,5 +1,6 @@
 import React from "react";
-import { Box, TextField, MenuItem, Grid } from "@mui/material";
+import { Box, TextField, MenuItem, Grid, InputAdornment } from "@mui/material";
+import SearchIcon from "@mui/icons-material/Search";
 
 const SearchRow = ({
   dropdownSearchFields,
@@ -20,23 +21,40 @@ const SearchRow = ({
   };
 
   return (
-    <Box sx={{ marginBottom: 2 }}>
-      <Grid container spacing={2}>
-        {/* Search Field */}
-        <Grid item xs={12} sm={6} md={3} lg={2} xl={2}>
+    <Box
+      sx={{
+        backgroundColor: "#fff",
+        padding: "16px",
+        borderRadius: "8px",
+        boxShadow: "0px 2px 10px rgba(0,0,0,0.1)",
+      }}
+    >
+      <Grid container spacing={2} alignItems="center">
+
+        <Grid item xs={12} sm={6} md={4} lg={3}>
           <TextField
-            placeholder="Search here..."
+            placeholder="Search..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value.toLowerCase())}
             variant="outlined"
             size="small"
             fullWidth
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon color="action" />
+                </InputAdornment>
+              ),
+            }}
+            sx={{
+              backgroundColor: "#f9f9f9",
+              borderRadius: "8px",
+            }}
           />
         </Grid>
 
-        {/* Dropdowns */}
         {dropdownSearchFields.map((field, i) => (
-          <Grid item xs={12} sm={6} md={3} lg={2} xl={2} key={i}>
+          <Grid item xs={12} sm={6} md={4} lg={3} key={i}>
             <TextField
               select
               label={`Select ${field.charAt(0).toUpperCase() + field.slice(1)}`}
@@ -59,6 +77,10 @@ const SearchRow = ({
                   },
                 },
               }}
+              sx={{
+                backgroundColor: "#f9f9f9",
+                borderRadius: "8px",
+              }}
             >
               <MenuItem value="">All</MenuItem>
               {getDropdownOptions(field).map((option, index) => (
@@ -72,7 +94,7 @@ const SearchRow = ({
 
         {dateFilterField && (
           <>
-            <Grid item xs={12} sm={6} md={3} lg={2} xl={2}>
+            <Grid item xs={12} sm={6} md={3} lg={2}>
               <TextField
                 type="date"
                 label="From"
@@ -83,9 +105,13 @@ const SearchRow = ({
                 }
                 size="small"
                 fullWidth
+                sx={{
+                  backgroundColor: "#f9f9f9",
+                  borderRadius: "8px",
+                }}
               />
             </Grid>
-            <Grid item xs={12} sm={6} md={3} lg={2} xl={2}>
+            <Grid item xs={12} sm={6} md={3} lg={2}>
               <TextField
                 type="date"
                 label="To"
@@ -96,19 +122,27 @@ const SearchRow = ({
                 }
                 size="small"
                 fullWidth
+                sx={{
+                  backgroundColor: "#f9f9f9",
+                  borderRadius: "8px",
+                }}
               />
             </Grid>
           </>
         )}
 
         {handleDateChange && (
-          <Grid item xs={12} sm={6} md={3} lg={2} xl={2}>
+          <Grid item xs={12} sm={6} md={3} lg={2}>
             <TextField
               type="date"
               value={todayDate}
               onChange={handleDateChange}
               size="small"
               fullWidth
+              sx={{
+                backgroundColor: "#f9f9f9",
+                borderRadius: "8px",
+              }}
             />
           </Grid>
         )}

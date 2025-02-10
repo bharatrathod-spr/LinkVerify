@@ -7,6 +7,7 @@ import {
   IconButton,
   Grid,
   Tooltip,
+  Stack,
 } from "@mui/material";
 import { Link } from "react-router-dom";
 import { Edit, Visibility, Delete } from "@mui/icons-material";
@@ -15,6 +16,7 @@ import moment from "moment";
 import ProfileModal from "../../components/Modals/ProfileModal";
 import { useProfile } from "../../hooks/useProfile";
 import Loader from "../../components/Common/Loader";
+import LinkIcon from "@mui/icons-material/Link";
 
 const headerData = [
   {
@@ -98,9 +100,20 @@ const ProfileTable = () => {
           alignItems: "start",
         }}
       >
-        <Typography variant="h5" gutterBottom>
-          URL Audit Profile
-        </Typography>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            paddingBottom: 1,
+          }}
+        >
+          <Stack direction="row" spacing={1} alignItems="center">
+            <Typography variant="h5" gutterBottom sx={{ fontWeight: 500 }}>
+              URL Audit Profile
+            </Typography>
+          </Stack>
+        </Box>
         <Button variant="contained" color="primary" onClick={toggleModel}>
           Add URL Audit Profile
         </Button>

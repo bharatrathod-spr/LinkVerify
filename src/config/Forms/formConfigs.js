@@ -78,7 +78,7 @@ const signup = {
       name: "EmailAddress",
       label: "Email",
       type: "email",
-      placeholder: "Enter email",
+      placeholder: "Enter Email Address",
       grid: 12,
       icon: Email,
     },

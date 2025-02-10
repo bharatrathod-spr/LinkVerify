@@ -265,8 +265,8 @@ const cronjob = async () => {
   }
 };
 
-// cron.schedule("*/1 * * * * ", () => {
-//   cronjob();
-// });
+cron.schedule("*/5 * * * * ", () => {
+  cronjob();
+});
 
 module.exports = cron;

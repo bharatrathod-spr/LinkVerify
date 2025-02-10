@@ -27,7 +27,7 @@ const SignUp = () => {
       alignItems="center"
       minHeight="100vh"
       sx={{
-        // backgroundColor: "#c2dfff" ,
+        background: "none",
         padding: 2,
       }}
     >

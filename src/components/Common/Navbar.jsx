@@ -63,12 +63,16 @@ const Navbar = ({ role }) => {
         </Typography>
 
         <IconButton color="inherit">
-          <Badge badgeContent={3} color="error">
+          <Badge>
             <NotificationsRounded />
           </Badge>
         </IconButton>
 
-        <IconButton color="inherit" onClick={handleOpenMenu}>
+        <IconButton
+          color="inherit"
+          onClick={handleOpenMenu}
+          sx={{ display: "flex", alignItems: "center" }}
+        >
           <Avatar
             sx={{
               width: 36,
@@ -76,11 +80,17 @@ const Navbar = ({ role }) => {
               backgroundColor: "#ffffff",
               color: "#6e8efb",
               fontWeight: "bold",
+              marginRight: 1, 
             }}
           >
             {user?.FirstName?.charAt(0).toUpperCase()}
             {user?.LastName?.charAt(0).toUpperCase()}
           </Avatar>
+          <Box sx={{ display: "flex", flexDirection: "column" }}>
+            <Typography variant="body1" sx={{ fontWeight: "bold" }}>
+              {user?.FirstName} {user?.LastName}
+            </Typography>
+          </Box>
         </IconButton>
 
         <StyledMenu

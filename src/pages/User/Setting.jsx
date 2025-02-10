@@ -136,7 +136,6 @@ const Settings = () => {
                       {Object.keys(alerts).map((key, index) => (
                         <TableRow key={index}>
                           <TableCell>{key}</TableCell>
-                          {console.log(key)}
                           <TableCell align="center">
                             <Button
                               variant={

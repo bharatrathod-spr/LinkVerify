@@ -57,35 +57,15 @@ export const updateUserAlerts = createAsyncThunk(
   }
 );
 
-// export const postUserSlackAlerts = createAsyncThunk(
-//   "setting/postUserSlackAlerts",
-//   async (type, { rejectWithValue }) => {
-//     try {
-//       // Make the API call to post the Slack alert
-//       const response = await axiosInstance.post("/alert-subsription", type);
-
-//       if (response.data.success) {
-//         toast.success(
-//           response.data.message || "Slack notification sent successfully"
-//         );
-//       } else {
-//         toast.error(
-//           response.data.message || "Failed to send Slack notification"
-//         );
-//       }
-
-//       return response.data; // You can return the response data or transformed data here
-//     } catch (error) {
-//       return rejectAction(error, rejectWithValue);
-//     }
-//   }
-// );
-
 export const postUserSlackAlerts = createAsyncThunk(
   "setting/postUserSlackAlerts",
-  async (type, { rejectWithValue }) => {
+  async ({ type, frequency }, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.post("/alert-subsription", type);
+      const response = await axiosInstance.post("/alert-subsription", {
+        Type: type,
+        Frequency: frequency,
+      });
+      console.log("Type:", type, "Frequency:", frequency);
 
       if (!response.data.success) {
         return rejectWithValue(

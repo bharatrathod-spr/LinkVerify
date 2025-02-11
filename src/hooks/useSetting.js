@@ -22,17 +22,12 @@ const useFetchUserAlerts = () => {
     return dispatch(updateUserAlerts(payload));
   };
 
-  // const handleSlackAlert = async (type) => {
-  //   return dispatch(postUserSlackAlerts({ Type: type })).unwrap();
-  // };
   const handleSlackAlert = async (type) => {
     try {
-      const response = await dispatch(
-        postUserSlackAlerts({ Type: type })
-      ).unwrap();
+      const response = await dispatch(postUserSlackAlerts(type)).unwrap();
       return response;
     } catch (error) {
-      throw error; // Re-throw error to handle it in the component
+      throw error;
     }
   };
 

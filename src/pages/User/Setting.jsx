@@ -11,7 +11,6 @@ import {
   TableCell,
   TableBody,
   Button,
-  Modal,
 } from "@mui/material";
 import { Form, Formik } from "formik";
 import useFetchUserAlerts from "../../hooks/useSetting";
@@ -22,47 +21,81 @@ const Settings = () => {
     useFetchUserAlerts();
 
   const [subscriptionState, setSubscriptionState] = useState({});
-
-  const [open, setOpen] = useState(false);
-  const [currentKey, setCurrentKey] = useState("");
-
-  const toggleSubscription = (key) => {
-    setSubscriptionState((prev) => ({
-      ...prev,
-      [key]: !prev[key],
-    }));
-  };
+  const [frequencyState, setFrequencyState] = useState({});
 
   const alertMap = {
     Slack: "slack",
     Email: "email",
     Sms: "sms",
   };
-
-  // const handleSubscribeClick = (key) => {
-  //   if (alertMap[key]) {
-  //     handleSlackAlert(alertMap[key]);
-  //   }
-
-  //   setSubscriptionState((prev) => ({
-  //     ...prev,
-  //     [key]: !prev[key],
-  //   }));
-  // };
-
   const handleSubscribeClick = async (key) => {
+    console.log("key", key);
+    console.log("Alert", alertMap[key]);
+
     if (alertMap[key]) {
       try {
-        const response = await handleSlackAlert(alertMap[key]);
+        const frequency = frequencyState[key] || "only_one_time";
+
+        console.log(
+          "Submitting subscription for",
+          key,
+          "with frequency",
+          frequency
+        );
+
+        const response = await handleSlackAlert({
+          type: alertMap[key],
+          frequency,
+        });
 
         toast.success(
           response.message || `${key} subscription updated successfully.`
         );
 
-        // Update state only on success
         setSubscriptionState((prev) => ({
           ...prev,
           [key]: !prev[key],
+        }));
+
+        if (!subscriptionState[key]) {
+          setFrequencyState((prev) => ({
+            ...prev,
+            [key]: "only_one_time",
+          }));
+        } else {
+          setFrequencyState((prev) => ({
+            ...prev,
+            [key]: undefined,
+          }));
+        }
+      } catch (error) {
+        toast.error(
+          error || `Failed to update ${key} subscription. Please try again.`
+        );
+      }
+    }
+  };
+
+  const handleUnsubscribeClick = async (key) => {
+    if (alertMap[key]) {
+      try {
+        const response = await handleSlackAlert({
+          type: alertMap[key],
+          frequency: "only_one_time",
+        });
+
+        toast.success(
+          response.message || `${key} subscription updated successfully.`
+        );
+
+        setSubscriptionState((prev) => ({
+          ...prev,
+          [key]: false,
+        }));
+
+        setFrequencyState((prev) => ({
+          ...prev,
+          [key]: undefined,
         }));
       } catch (error) {
         toast.error(
@@ -72,14 +105,24 @@ const Settings = () => {
     }
   };
 
-  const handleModalClose = () => {
-    setOpen(false);
-    setCurrentKey("");
-  };
+  const handleFrequencyChange = async (key, newFrequency) => {
+    try {
+      setFrequencyState((prev) => ({
+        ...prev,
+        [key]: newFrequency,
+      }));
 
-  const handleModalJoinNow = () => {
-    toggleSubscription(currentKey);
-    handleModalClose();
+      const response = await handleSlackAlert({
+        type: alertMap[key],
+        frequency: newFrequency,
+      });
+
+      toast.success(`Frequency updated to ${newFrequency} for ${key}.`);
+    } catch (error) {
+      toast.error(
+        error || `Failed to update frequency for ${key}. Please try again.`
+      );
+    }
   };
 
   const handleFormSubmit = (values) => {
@@ -130,6 +173,7 @@ const Settings = () => {
                       <TableRow>
                         <TableCell>Subscriber Preferences</TableCell>
                         <TableCell align="center"></TableCell>
+                        <TableCell align="center"></TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
@@ -146,27 +190,48 @@ const Settings = () => {
                               color={
                                 subscriptionState[key] ? "secondary" : "primary"
                               }
-                              onClick={() => handleSubscribeClick(key)}
+                              onClick={() =>
+                                subscriptionState[key]
+                                  ? handleUnsubscribeClick(key)
+                                  : handleSubscribeClick(key)
+                              }
                             >
                               {subscriptionState[key]
                                 ? "Unsubscribe"
                                 : "Subscribe"}
                             </Button>
                           </TableCell>
+                          <TableCell align="center">
+                            {subscriptionState[key] && (
+                              <select
+                                value={frequencyState[key] || "per_minute"}
+                                onChange={(e) =>
+                                  handleFrequencyChange(key, e.target.value)
+                                }
+                                style={{
+                                  padding: "8px 12px",
+                                  fontSize: "14px",
+                                  borderRadius: "4px",
+                                  border: "1px solid #ccc",
+                                  backgroundColor: "#fff",
+                                  cursor: "pointer",
+                                }}
+                              >
+                                <option value="per_minute">Per Minutes</option>
+                                <option value="only_one_time">Once</option>
+                                <option value="per_hour">Hourly</option>
+                                <option value="per_5_hours">
+                                  Every 5 Hours
+                                </option>
+                                <option value="per_day">Daily</option>
+                              </select>
+                            )}
+                          </TableCell>
                         </TableRow>
                       ))}
                     </TableBody>
                   </Table>
                 </TableContainer>
-
-                {/* <Button
-                  type="submit"
-                  variant="contained"
-                  color="primary"
-                  sx={{ marginTop: 3 }}
-                >
-                  Update Settings
-                </Button> */}
               </Form>
             )}
           </Formik>

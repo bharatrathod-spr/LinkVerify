@@ -15,6 +15,6 @@ app.use(morgan("dev"));
 app.use("/api", routes);
 
 // Crons Jobs
-require("./cron/validationJob");  // validation job
+require("./cron/validationJob");  
 
 module.exports = app;

@@ -12,11 +12,29 @@ const getAllAlert = async (UserId) => {
 
 // ===== UPDATE ALERTS BY USERID =====
 const updateAlertsByUserId = async (UserId, Alerts) => {
-  return await Alert.findOneAndUpdate(
-    { UserId, IsDelete: false },
-    { $set: { Alerts } },
-    { new: true }
-  );
+  try {
+    const { Type, Frequency } = req.body;
+
+    const alert = await Alert.findOneAndUpdate(
+      { UserId: req.user.id, "Alerts.Type": Type },
+      { $set: { "Alerts.$.Frequency": Frequency } },
+      { new: true }
+    );
+
+    if (!alert) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Alert not found" });
+    }
+
+    res.json({
+      success: true,
+      message: "Frequency updated successfully",
+      alert,
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
 };
 
 module.exports = {

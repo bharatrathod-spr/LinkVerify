@@ -14,6 +14,18 @@ const alertSubSchema = new Schema(
       type: Boolean,
       default: true,
     },
+    Frequency: {
+      type: String,
+      enum: [
+        "only_one_time",
+        "per_hour",
+        "per_5_hours",
+        "per_day",
+        "per_minute",
+      ],
+      default: "per_minute",
+    },
+    LastAlertTime: { type: Date },
   },
   { _id: false }
 );

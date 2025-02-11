@@ -40,6 +40,7 @@ async function getUserIdByEmail(EmailAddress) {
     }
   }
 }
+
 async function sendSlackNotificationToUser(EmailAddress, messageText) {
   const userResult = await getUserIdByEmail(EmailAddress);
 

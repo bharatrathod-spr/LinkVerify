@@ -9,12 +9,12 @@ const sendFailureReasonsMail = async (
 ) => {
   return new Promise((resolve, reject) => {
     let transporter = nodemailer.createTransport({
-      host: "smtp.gmail.com",
-      port: 587,
-      secure: false,
+      host: "mail.keybrainstech.com",
+      port: 465,
+      secure: true,
       auth: {
-        user: "302prop@keybrains.in",
-        pass: "prdiobhkbueguwzt",
+        user: "shivamshukla@keybrainstech.com",
+        pass: "4Y=&_kC+z!kH",
       },
       tls: {
         rejectUnauthorized: false,
@@ -22,19 +22,9 @@ const sendFailureReasonsMail = async (
     });
 
     const mailOptions = {
-      from: "302prop@keybrains.in",
+      from: "shivamshukla@keybrainstech.com",
       to: email,
       subject: "SEO Validation: Failure Reasons",
-      //   html: `
-      //       <h1>🚨 SEO Validation Failure</h1>
-      //       <p>The validation process for the following links encountered issues:</p>
-      //       <p><strong>Source URL:</strong> ${sourceUrl}</p>
-      //       <p><strong>Search URL:</strong> ${searchUrl}</p>
-      //       <p><strong>Failure Reasons:</strong></p>
-      //       <ul>
-      //         ${failureReasons.map((reason) => `<li>${reason}</li>`).join("")}
-      //       </ul>
-      //     `,
       html: `
   <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 20px auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px; background-color: #f9f9f9;">
     <h2 style="text-align: center; color: #e74c3c; margin-bottom: 20px;">🚨 SEO Validation Failure</h2>

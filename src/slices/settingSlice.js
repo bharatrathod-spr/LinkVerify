@@ -28,7 +28,6 @@ const settingSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      // Get User Alert
       .addCase(fetchUserAlerts.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -41,22 +40,26 @@ const settingSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
       })
-
-      // post slack User Alerts
       .addCase(postUserSlackAlerts.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
       .addCase(postUserSlackAlerts.fulfilled, (state, action) => {
         state.loading = false;
-        // state.alerts = action.payload;
+
+        const updatedType = action.meta.arg.type;
+        const updatedFrequency = action.meta.arg.frequency;
+
+        state.alerts = state.alerts.map((alert) =>
+          alert.Type === updatedType
+            ? { ...alert, Frequency: updatedFrequency }
+            : alert
+        );
       })
       .addCase(postUserSlackAlerts.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })
-
-      // Update User Alerts
       .addCase(updateUserAlerts.pending, (state) => {
         state.loading = true;
         state.error = null;

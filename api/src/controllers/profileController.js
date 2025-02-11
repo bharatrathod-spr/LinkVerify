@@ -42,60 +42,6 @@ const getProfile = async (req, res) => {
 
 // Get profile logs
 
-// const getProfileLogs = async (req, res) => {
-//   const { profileId } = req.params;
-//   try {
-//     const profile = await getProfileById(profileId, { IsDelete: false });
-
-//     if (!profile) {
-//       return res.status(404).json({ error: "Profile not found" });
-//     }
-
-//     const profileCounts = await ProfileCounts.findOne({
-//       ValidationProfileId: profileId,
-//       IsDelete: false,
-//     });
-
-//     if (!profileCounts) {
-//       return res.status(404).json({ error: "Profile counts not found" });
-//     }
-
-//     const totalValidations =
-//       profileCounts.SuccessCount + profileCounts.FailureCount;
-//     const successCount = profileCounts.SuccessCount;
-//     const failureCount = profileCounts.FailureCount;
-
-//     const validationLogs = await filterLogs([
-//       {
-//         $match: {
-//           ValidationProfileId: profileId,
-//           IsDelete: false,
-//         },
-//       },
-//       {
-//         $group: {
-//           _id: null,
-//           lastFailureReasons: { $push: "$FailureReasons" },
-//         },
-//       },
-//     ]);
-
-//     const logSummary = validationLogs[0] || { lastFailureReasons: [] };
-
-//     res.status(200).json({
-//       validationProfile: profile,
-//       logSummary: {
-//         totalValidations,
-//         successCount,
-//         failureCount,
-//         recentFailureReasons: logSummary.lastFailureReasons.slice(-5),
-//       },
-//     });
-//   } catch (error) {
-//     res.status(500).json({ error: error.message });
-//   }
-// };
-
 const getProfileLogs = async (req, res) => {
   const { profileId } = req.params;
 

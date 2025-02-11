@@ -48,7 +48,7 @@ export const updateUserAlerts = createAsyncThunk(
       const payload = { Alerts: transformedAlerts };
 
       const response = await axiosInstance.patch(`/alert-subsription`, payload);
-      toast.success(response.data.message || "Setting updated successfully");
+      toast.success(response.data.message || "Setting updated successfully!");
 
       return alert;
     } catch (error) {

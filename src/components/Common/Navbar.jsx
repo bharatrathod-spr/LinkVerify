@@ -80,7 +80,7 @@ const Navbar = ({ role }) => {
               backgroundColor: "#ffffff",
               color: "#6e8efb",
               fontWeight: "bold",
-              marginRight: 1, 
+              marginRight: 1,
             }}
           >
             {user?.FirstName?.charAt(0).toUpperCase()}

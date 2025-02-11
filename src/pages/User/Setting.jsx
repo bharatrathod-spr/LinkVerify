@@ -15,9 +15,11 @@ import {
 import { Form, Formik } from "formik";
 import useFetchUserAlerts from "../../hooks/useSetting";
 import { toast } from "react-toastify";
+import MailConfigModal from "../../components/Forms/MailConfigModal";
+import { jwtDecode } from "jwt-decode";
 
 const Settings = () => {
-  const { alerts, loading, error, handleUpdate, handleSlackAlert } =
+  const { alerts, loading, handleUpdate, handleSlackAlert } =
     useFetchUserAlerts();
 
   const [subscriptionState, setSubscriptionState] = useState({});
@@ -28,20 +30,13 @@ const Settings = () => {
     Email: "email",
     Sms: "sms",
   };
-  const handleSubscribeClick = async (key) => {
-    console.log("key", key);
-    console.log("Alert", alertMap[key]);
 
+  const handleSubscribeClick = async (key) => {
     if (alertMap[key]) {
       try {
         const frequency = frequencyState[key] || "only_one_time";
 
-        console.log(
-          "Submitting subscription for",
-          key,
-          "with frequency",
-          frequency
-        );
+        setSubscriptionState((prev) => ({ ...prev, [key]: true }));
 
         const response = await handleSlackAlert({
           type: alertMap[key],
@@ -72,6 +67,8 @@ const Settings = () => {
         toast.error(
           error || `Failed to update ${key} subscription. Please try again.`
         );
+      } finally {
+        setSubscriptionState((prev) => ({ ...prev, [key]: false }));
       }
     }
   };
@@ -79,6 +76,8 @@ const Settings = () => {
   const handleUnsubscribeClick = async (key) => {
     if (alertMap[key]) {
       try {
+        setSubscriptionState((prev) => ({ ...prev, [key]: true }));
+
         const response = await handleSlackAlert({
           type: alertMap[key],
           frequency: "only_one_time",
@@ -101,6 +100,8 @@ const Settings = () => {
         toast.error(
           error || `Failed to update ${key} subscription. Please try again.`
         );
+      } finally {
+        setSubscriptionState((prev) => ({ ...prev, [key]: false }));
       }
     }
   };
@@ -138,13 +139,15 @@ const Settings = () => {
       setSubscriptionState(initialState);
     }
   }, [alerts]);
+  const token = localStorage.getItem("token");
+  const userId = token ? jwtDecode(token).id : null;
+  const [openMailModal, setOpenMailModal] = useState(false);
 
   return (
     <Box sx={{ padding: 4 }}>
       <Typography variant="h5" gutterBottom>
         Settings
       </Typography>
-
       {loading ? (
         <Box
           sx={{
@@ -173,7 +176,7 @@ const Settings = () => {
                       <TableRow>
                         <TableCell>Subscriber Preferences</TableCell>
                         <TableCell align="center"></TableCell>
-                        <TableCell align="center"></TableCell>
+                        <TableCell align="center">Frequency</TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
@@ -202,7 +205,7 @@ const Settings = () => {
                             </Button>
                           </TableCell>
                           <TableCell align="center">
-                            {subscriptionState[key] && (
+                            {subscriptionState[key] ? (
                               <select
                                 value={frequencyState[key] || "per_minute"}
                                 onChange={(e) =>
@@ -217,7 +220,7 @@ const Settings = () => {
                                   cursor: "pointer",
                                 }}
                               >
-                                <option value="per_minute">Per Minutes</option>
+                                <option value="per_minute">Per Minute</option>
                                 <option value="only_one_time">Once</option>
                                 <option value="per_hour">Hourly</option>
                                 <option value="per_5_hours">
@@ -225,6 +228,10 @@ const Settings = () => {
                                 </option>
                                 <option value="per_day">Daily</option>
                               </select>
+                            ) : (
+                              <Typography variant="body2" color="error">
+                                Frequency not found
+                              </Typography>
                             )}
                           </TableCell>
                         </TableRow>
@@ -237,6 +244,11 @@ const Settings = () => {
           </Formik>
         </Paper>
       )}
+      <MailConfigModal
+        open={openMailModal}
+        handleClose={() => setOpenMailModal(false)}
+        userId={userId}
+      />
     </Box>
   );
 };

@@ -1,276 +1,3 @@
-// const axios = require("axios");
-// const cheerio = require("cheerio");
-// const robotsParser = require("robots-parser");
-// const moment = require("moment");
-// const winston = require("winston");
-// const DailyRotateFile = require("winston-daily-rotate-file");
-// const cron = require("node-cron");
-
-// // Models
-// const Users = require("../models/userModel");
-// const Profiles = require("../models/profileModel");
-// const ProfileCount = require("../models/profileCountModel");
-
-// // Controllers
-// const { createLog } = require("../controllers/logsController");
-// const { postFailureAlerts } = require("../controllers/alertController");
-
-// // Winston logger setup
-// const logTransport = new DailyRotateFile({
-//   filename: "logs/validation-%DATE%.log",
-//   datePattern: "YYYY-MM-DD",
-//   zippedArchive: false,
-//   maxSize: "20m",
-//   maxFiles: "14d",
-//   debug: true,
-// });
-
-// const logger = winston.createLogger({
-//   level: "info",
-//   format: winston.format.combine(
-//     winston.format.colorize(),
-//     winston.format.timestamp(),
-//     winston.format.printf(({ timestamp, level, message }) => {
-//       return `${timestamp} [${level}]: ${message}`;
-//     })
-//   ),
-//   transports: [logTransport, new winston.transports.Console()],
-// });
-
-// // Function to log messages
-// function log(message, title = "LinkValidation") {
-//   const timestamp = new Date().toISOString();
-//   const formattedMessage = `
-// Title: ${title}
-// Log: ${message}
-// Time: ${timestamp}
-// ==================================================
-//   `;
-//   logger.info(formattedMessage);
-// }
-// // Function to update profile counts
-// async function updateProfileCount(
-//   UserId,
-//   ValidationProfileId,
-//   isSuccess,
-//   responseTime
-// ) {
-//   const formattedDate = moment().format("MMM DD");
-
-//   const profileCount = await ProfileCount.findOne({
-//     UserId,
-//     ValidationProfileId,
-//     Date: formattedDate,
-//   });
-
-//   const adjustedResponseTime = responseTime / 2;
-
-//   if (profileCount) {
-//     if (isSuccess) {
-//       profileCount.SuccessCount = (profileCount.SuccessCount || 0) + 1;
-//     } else {
-//       profileCount.FailureCount = (profileCount.FailureCount || 0) + 1;
-//     }
-//     profileCount.ResponseTime = adjustedResponseTime;
-
-//     await profileCount.save();
-//   } else {
-//     const newProfileCount = new ProfileCount({
-//       UserId,
-//       ValidationProfileId,
-//       SuccessCount: isSuccess ? 1 : 0,
-//       FailureCount: isSuccess ? 0 : 1,
-//       ResponseTime: adjustedResponseTime,
-//       Date: formattedDate,
-//     });
-
-//     await newProfileCount.save();
-//   }
-// }
-
-// // Function to validate SEO and links
-// async function seoAndLinkValidate(url, searchUrl, UserId, ValidationProfileId) {
-//   const startTime = Date.now();
-
-//   let success = true;
-//   let failureReasons = [];
-//   let hasNoFollowMeta = false;
-//   let hasNoIndexMeta = false;
-
-//   try {
-//     const response = await axios.get(url);
-//     const $ = cheerio.load(response.data);
-
-//     const metaRobots = $('meta[name="robots"]').attr("content");
-//     if (metaRobots) {
-//       hasNoFollowMeta = metaRobots.includes("nofollow");
-//       hasNoIndexMeta = metaRobots.includes("noindex");
-//     } else {
-//       failureReasons.push("Missing meta robots tag");
-//       success = false;
-//     }
-
-//     let linkExists = false;
-//     $("a").each((index, element) => {
-//       const href = $(element).attr("href");
-//       if (href && href === searchUrl) {
-//         linkExists = true;
-//       }
-//     });
-
-//     if (!linkExists) {
-//       failureReasons.push(`Link to ${searchUrl} not found.`);
-//       success = false;
-//     }
-
-//     const robotsTxtUrl = new URL("/robots.txt", url).toString();
-//     try {
-//       const robotsTxtResponse = await axios.get(robotsTxtUrl);
-//       const robots = robotsParser(robotsTxtUrl, robotsTxtResponse.data);
-//       const canCrawl = robots.isAllowed(url);
-//       if (!canCrawl) {
-//         failureReasons.push("URL is disallowed by robots.txt");
-//         success = false;
-//       }
-//     } catch {
-//       failureReasons.push("Robots.txt not found or inaccessible.");
-//     }
-
-//     const endTime = Date.now();
-//     const responseTime = endTime - startTime;
-
-//     // Log validation result
-//     createLog({
-//       UserId,
-//       ValidationProfileId,
-//       IsSuccess: success,
-//       FailureReasons: failureReasons,
-//       ResponseTime: responseTime,
-//       MetaRobotsTags: {
-//         Follow: !hasNoFollowMeta,
-//         Index: !hasNoIndexMeta,
-//       },
-//       LastErrorAt: success ? null : new Date().toISOString(),
-//       LastSuccessAt: success ? new Date().toISOString() : null,
-//     });
-
-//     // Update ProfileCount
-//     await updateProfileCount(
-//       UserId,
-//       ValidationProfileId,
-//       success,
-//       responseTime
-//     );
-
-//     return {
-//       LastErrorAt: success ? null : new Date().toISOString(),
-//       LastSuccessAt: success ? new Date().toISOString() : null,
-//       failureReasons,
-//     };
-//   } catch (error) {
-//     console.error("Error fetching or validating:", error.message);
-
-//     const responseTime = Date.now() - startTime;
-
-//     createLog({
-//       UserId,
-//       ValidationProfileId,
-//       IsSuccess: false,
-//       FailureReasons: [error.message],
-//       ResponseTime: responseTime,
-//       MetaRobotsTags: {
-//         Follow: false,
-//         Index: false,
-//       },
-//       LastErrorAt: new Date().toISOString(),
-//       LastSuccessAt: null,
-//     });
-
-//     // Update ProfileCount
-//     await updateProfileCount(UserId, ValidationProfileId, false, responseTime);
-
-//     return {
-//       LastErrorAt: new Date().toISOString(),
-//       LastSuccessAt: null,
-//       failureReasons: [error.message],
-//     };
-//   }
-// }
-
-// const cronjob = async () => {
-//   try {
-//     log("Starting cron job...");
-
-//     const users = await Users.find({
-//       IsDelete: false,
-//       IsActive: true,
-//       Role: "user",
-//     });
-//     log(`Found ${users.length} active users to process.`);
-//     for (const user of users) {
-//       const validateTime = moment().utc().startOf("minute").toDate();
-
-//       const profiles = await Profiles.find({
-//         UserId: user.UserId,
-//         IsDelete: false,
-//         ValidateAt: { $lte: validateTime },
-//       });
-
-//       log(
-//         `Found ${profiles.length} validation profiles for user ${user.UserId}.`
-//       );
-
-//       for (const profile of profiles) {
-//         const { SourceLink, SearchLink, CronExpression } = profile;
-
-//         const { LastSuccessAt, LastErrorAt, failureReasons } =
-//           await seoAndLinkValidate(
-//             SourceLink,
-//             SearchLink,
-//             user.UserId,
-//             profile.ValidationProfileId
-//           );
-
-//         if (failureReasons && failureReasons.length > 0) {
-//           const slackResponse = await postFailureAlerts(
-//             user.EmailAddress,
-//             SourceLink,
-//             SearchLink,
-//             failureReasons,
-//             user.UserId
-//           );
-//           if (!slackResponse.success) {
-//             log(
-//               `Slack notification failed for ${user.EmailAddress}: ${slackResponse.message}`
-//             );
-//           }
-//         }
-
-//         const cronParts = CronExpression.split(" ");
-//         const timeValue = parseInt(cronParts[0]);
-//         const timeUnit = cronParts[1];
-
-//         let newDate = moment().add(timeValue, timeUnit).utc().startOf("minute");
-//         profile.ValidateAt = newDate.toDate();
-//         profile.LastErrorAt = LastErrorAt;
-//         profile.LastSuccessAt = LastSuccessAt;
-
-//         await profile.save();
-//       }
-//     }
-
-//     log("Cron job completed successfully.");
-//   } catch (error) {
-//     log(`Error during cron job: ${error.message}`);
-//   }
-// };
-
-// cron.schedule("*/5 * * * * ", () => {
-//   cronjob();
-// });
-
-// module.exports = cron;
-
 const axios = require("axios");
 const cheerio = require("cheerio");
 const robotsParser = require("robots-parser");
@@ -369,21 +96,50 @@ async function seoAndLinkValidate(url, searchUrl, UserId, ValidationProfileId) {
   let failureReasons = [];
 
   try {
-    const response = await axios.get(url);
+    console.log(`Validating URL: ${url} | Searching for: ${searchUrl}`);
+    const response = await axios.get(url, {
+      headers: {
+        "User-Agent":
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.0.0 Safari/537.36",
+        "Accept-Language": "en-US,en;q=0.9",
+        Accept:
+          "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8",
+      },
+      timeout: 10000,
+      maxRedirects: 5,
+    });
+
+    console.log(`Response Status: ${response.status}`);
+
+    if (response.status !== 200) {
+      failureReasons.push(`HTTP error: ${response.status}`);
+      success = false;
+    }
+
     const $ = cheerio.load(response.data);
 
-    const metaRobots = $('meta[name="robots"]').attr("content");
+    const metaRobots = $('meta[name="robots"]').attr("content") || "not set";
+    console.log("Meta Robots:", metaRobots);
+
     const hasNoFollowMeta = metaRobots
       ? metaRobots.includes("nofollow")
       : false;
     const hasNoIndexMeta = metaRobots ? metaRobots.includes("noindex") : false;
 
+    const normalizeUrl = (inputUrl) => {
+      return new URL(inputUrl, url)
+        .toString()
+        .replace(/\/$/, "")
+        .replace("http://", "https://");
+    };
+
     let linkExists = false;
     $("a").each((_, element) => {
       const href = $(element).attr("href");
       if (href) {
-        const absoluteUrl = new URL(href, url).toString();
-        if (absoluteUrl === new URL(searchUrl, url).toString()) {
+        const absoluteUrl = normalizeUrl(href);
+        const expectedUrl = normalizeUrl(searchUrl);
+        if (absoluteUrl === expectedUrl) {
           linkExists = true;
         }
       }
@@ -397,12 +153,15 @@ async function seoAndLinkValidate(url, searchUrl, UserId, ValidationProfileId) {
     const robotsTxtUrl = new URL("/robots.txt", url).toString();
     try {
       const robotsTxtResponse = await axios.get(robotsTxtUrl);
+      console.log(`Fetched robots.txt from: ${robotsTxtUrl}`);
+      console.log("robots.txt Content:", robotsTxtResponse.data);
       const robots = robotsParser(robotsTxtUrl, robotsTxtResponse.data);
       if (!robots.isAllowed(url)) {
         failureReasons.push("URL is disallowed by robots.txt");
         success = false;
       }
-    } catch {
+    } catch (err) {
+      console.log("Robots.txt not found or inaccessible.");
       failureReasons.push("Robots.txt not found or inaccessible.");
     }
 

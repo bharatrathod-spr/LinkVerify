@@ -15,7 +15,6 @@ import {
 import { Form, Formik } from "formik";
 import useFetchUserAlerts from "../../hooks/useSetting";
 import { toast } from "react-toastify";
-import MailConfigModal from "../../components/Forms/MailConfigModal";
 import { jwtDecode } from "jwt-decode";
 
 const Settings = () => {
@@ -207,7 +206,7 @@ const Settings = () => {
                           <TableCell align="center">
                             {subscriptionState[key] ? (
                               <select
-                                value={frequencyState[key] || "per_minute"}
+                                value={frequencyState[key] || "only_one_time"}
                                 onChange={(e) =>
                                   handleFrequencyChange(key, e.target.value)
                                 }
@@ -230,7 +229,7 @@ const Settings = () => {
                               </select>
                             ) : (
                               <Typography variant="body2" color="error">
-                                Frequency not found
+                                Frequency not set
                               </Typography>
                             )}
                           </TableCell>
@@ -244,11 +243,6 @@ const Settings = () => {
           </Formik>
         </Paper>
       )}
-      <MailConfigModal
-        open={openMailModal}
-        handleClose={() => setOpenMailModal(false)}
-        userId={userId}
-      />
     </Box>
   );
 };

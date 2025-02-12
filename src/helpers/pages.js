@@ -11,6 +11,7 @@ const Profile = lazy(() => import("../pages/User/UserProfile"));
 const UserActivities = lazy(() => import("../pages/User/ActivityTable"));
 const Setting = lazy(() => import("../pages/User/Setting"));
 const ChangePassword = lazy(() => import("../pages/User/ChangePassword"));
+const MailConfiguration = lazy(() => import("../pages/User/MailConfiguration"));
 
 const SuperUserDashboard = lazy(() =>
   import("../pages/SuperUser/SuperUserDashboard")
@@ -32,6 +33,7 @@ const pages = {
   SuperUserDashboard,
   UsersTable,
   Setting,
+  MailConfiguration,
   ChangePassword,
 };
 

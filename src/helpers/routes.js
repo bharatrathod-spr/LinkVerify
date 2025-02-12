@@ -82,15 +82,6 @@ const routes = [
         keywords:
           "profile details, validation details, SEO analysis, link optimization",
       },
-      // {
-      //   title: "Add Validation Profile",
-      //   path: "add-validation-profile",
-      //   component: pages.ValidationProfileForm,
-      //   description:
-      //     "Create and customize a new validation profile to track your website's SEO link performance.",
-      //   keywords:
-      //     "add profile, create validation profile, SEO tools, link management",
-      // },
       {
         title: "User Profile",
         path: "profile",
@@ -124,6 +115,15 @@ const routes = [
           "Configure your account and application settings for a personalized experience.",
         keywords:
           "settings, user settings, SEO customization, account configuration",
+      },
+      {
+        title: "Mail Configuration",
+        path: "mail-configuration",
+        component: pages.MailConfiguration,
+        description:
+          "Configure your account and application settings for a personalized experience.",
+        keywords:
+          "MailConfiguration, user settings, mail configuration, SMTP, email setup",
       },
     ],
   },

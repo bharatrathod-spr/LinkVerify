@@ -18,18 +18,47 @@ const createMailConfiguration = async (req, res) => {
   }
 };
 
-const getMailConfigurationDetails = async (req, res) => {
+const getMailConfiguration = async (req, res) => {
   const { MailConfigurationId } = req.params;
   try {
-    const result = await MailConfiguration.findOne({
+    const result = await MailConfiguration.find({
       MailConfigurationId,
       IsDelete: false,
     });
 
-    if (!result) {
+    if (!result || result.length === 0) {
       return res.status(404).json({
         statusCode: 404,
         message: `No Mail Details found for MailConfigurationId: ${MailConfigurationId}`,
+      });
+    }
+
+    return res.status(200).json({
+      statusCode: 200,
+      message: `Mail Details fetched successfully`,
+      result,
+    });
+  } catch (error) {
+    console.error(error.message);
+    return res.status(500).json({
+      statusCode: 500,
+      message: "Something went wrong, please try later!",
+    });
+  }
+};
+
+const getMailConfigurationDetails = async (req, res) => {
+  const { UserId } = req.params;
+  try {
+    const result = await MailConfiguration.find({
+      UserId,
+      IsDelete: false,
+    });
+
+    if (!result || result.length === 0) {
+      return res.status(404).json({
+        statusCode: 404,
+        message: `No Mail Details found for UserId: ${UserId}`,
       });
     }
 
@@ -79,7 +108,8 @@ const updateMailConfiguration = async (req, res) => {
   }
 };
 
-const deleteMailConfiguration = async (MailConfigurationId) => {
+const deleteMailConfiguration = async (req, res) => {
+  const { MailConfigurationId } = req.params;
   const data = await MailConfiguration.findOneAndUpdate(
     { MailConfigurationId },
     { $set: { IsDelete: true } },
@@ -102,6 +132,7 @@ const deleteMailConfiguration = async (MailConfigurationId) => {
 
 module.exports = {
   createMailConfiguration,
+  getMailConfiguration,
   getMailConfigurationDetails,
   updateMailConfiguration,
   deleteMailConfiguration,

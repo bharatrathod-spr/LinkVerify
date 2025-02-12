@@ -20,6 +20,7 @@ import {
   LogoutRounded,
   LockRounded,
   DashboardRounded,
+  MailRounded,
 } from "@mui/icons-material";
 
 import useMobileDrawer from "../../hooks/useMobileDrawer";
@@ -132,6 +133,14 @@ const Navbar = ({ role }) => {
               onClick={handleCloseMenu}
             >
               <SettingsRounded sx={{ marginRight: 1 }} /> Settings
+            </MenuItem>,
+            <MenuItem
+              key="mail-configuration"
+              component={Link}
+              to="/user/mail-configuration"
+              onClick={handleCloseMenu}
+            >
+              <MailRounded sx={{ marginRight: 1 }} /> Mail Configuration
             </MenuItem>,
           ]}
           <MenuItem onClick={logout}>

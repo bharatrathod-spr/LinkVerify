@@ -65,7 +65,6 @@ export const postUserSlackAlerts = createAsyncThunk(
         Type: type,
         Frequency: frequency,
       });
-      console.log("Type:", type, "Frequency:", frequency);
 
       if (!response.data.success) {
         return rejectWithValue(
@@ -78,6 +77,25 @@ export const postUserSlackAlerts = createAsyncThunk(
       return rejectWithValue(
         error.response?.data?.message || "An error occurred."
       );
+    }
+  }
+);
+
+export const updateMailConfig = createAsyncThunk(
+  "mailConfig/update",
+  async (selectedConfigId, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.post(
+        "/alert-subsription/addMailConfiguration",
+        {
+          MailConfigurationId: selectedConfigId,
+        }
+      );
+      console.log(response, "response");
+      console.log(selectedConfigId, "selectedConfigId.......");
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response.data);
     }
   }
 );

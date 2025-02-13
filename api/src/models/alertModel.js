@@ -42,6 +42,10 @@ const alertSchema = new Schema(
       type: String,
       required: true,
     },
+    MailConfigurationId: {
+      type: String,
+      required: true,
+    },
     Alerts: {
       type: [alertSubSchema],
       default: () => [{ Type: "email", Subscriber: true }],

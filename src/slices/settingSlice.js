@@ -3,6 +3,7 @@ import {
   fetchUserAlerts,
   updateUserAlerts,
   postUserSlackAlerts,
+  updateMailConfig,
 } from "../actions/settingActions";
 
 const initialState = {
@@ -72,6 +73,18 @@ const settingSlice = createSlice({
       .addCase(updateUserAlerts.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
+      })
+
+      .addCase(updateMailConfig.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(updateMailConfig.fulfilled, (state, action) => {
+        state.loading = false;
+        state.successMessage = action.payload.message;
+      })
+      .addCase(updateMailConfig.rejected, (state, action) => {
+        state.loading = false;
+        state.errorMessage = action.payload.message;
       });
   },
 });

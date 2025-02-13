@@ -50,20 +50,17 @@ export const addMailConfig = createAsyncThunk(
 
 export const updateMailConfig = createAsyncThunk(
   "mailConfig/updateMailConfig",
-  async ({ MailConfigurationId, config }, { rejectWithValue }) => {
+  async (config, { rejectWithValue }) => {
     try {
       const response = await axiosInstance.put(
-        `/mail-config/${MailConfigurationId}`,
-        {
-          ...config,
-        }
+        `/mail-config/${config.MailConfigurationId}`,
+        config
       );
-      console.log(response, "response");
-      toast.success("Mail configuration updated successfully!");
-      return response.data.result;
+      return response.data;
     } catch (error) {
-      toast.error("Failed to update mail configuration.");
-      return rejectWithValue(error.message);
+      return rejectWithValue(
+        error.response?.data || "Error updating mail config"
+      );
     }
   }
 );

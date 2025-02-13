@@ -18,7 +18,6 @@ const mailConfigSlice = createSlice({
   initialState,
   reducers: {},
   extraReducers: (builder) => {
-    // Fetch mail configurations
     builder
       .addCase(fetchMailConfig.pending, (state) => {
         state.loading = true;
@@ -52,8 +51,10 @@ const mailConfigSlice = createSlice({
       .addCase(updateMailConfig.fulfilled, (state, action) => {
         state.loading = false;
         const index = state.mailConfigList.findIndex(
-          (config) => config.id === action.payload.id
+          (config) =>
+            config.MailConfigurationId === action.payload.MailConfigurationId
         );
+
         if (index !== -1) {
           state.mailConfigList[index] = action.payload;
         }

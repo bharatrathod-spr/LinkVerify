@@ -40,7 +40,12 @@ const useMailConfig = () => {
   };
 
   const handleUpdateMailConfig = (config) => {
-    return dispatch(updateMailConfig({ UserId, config }));
+    return dispatch(
+      updateMailConfig({
+        ...config,
+        MailConfigurationId: config.MailConfigurationId,
+      })
+    );
   };
 
   const handleDeleteMailConfig = (configId) => {

@@ -1,3 +1,4 @@
+//Setting.jsx
 import React, { useEffect, useState } from "react";
 import {
   Typography,
@@ -15,7 +16,7 @@ import {
 import { Form, Formik } from "formik";
 import useFetchUserAlerts from "../../hooks/useSetting";
 import { toast } from "react-toastify";
-import { jwtDecode } from "jwt-decode";
+import MailSetModal from "./MailSetModal";
 
 const Settings = () => {
   const { alerts, loading, handleUpdate, handleSlackAlert } =
@@ -23,6 +24,7 @@ const Settings = () => {
 
   const [subscriptionState, setSubscriptionState] = useState({});
   const [frequencyState, setFrequencyState] = useState({});
+  const [openMailModal, setOpenMailModal] = useState(false);
 
   const alertMap = {
     Slack: "slack",
@@ -34,7 +36,6 @@ const Settings = () => {
     if (alertMap[key]) {
       try {
         const frequency = frequencyState[key] || "only_one_time";
-
         setSubscriptionState((prev) => ({ ...prev, [key]: true }));
 
         const response = await handleSlackAlert({
@@ -45,22 +46,12 @@ const Settings = () => {
         toast.success(
           response.message || `${key} subscription updated successfully.`
         );
-
-        setSubscriptionState((prev) => ({
-          ...prev,
-          [key]: !prev[key],
-        }));
+        setSubscriptionState((prev) => ({ ...prev, [key]: !prev[key] }));
 
         if (!subscriptionState[key]) {
-          setFrequencyState((prev) => ({
-            ...prev,
-            [key]: "only_one_time",
-          }));
+          setFrequencyState((prev) => ({ ...prev, [key]: "only_one_time" }));
         } else {
-          setFrequencyState((prev) => ({
-            ...prev,
-            [key]: undefined,
-          }));
+          setFrequencyState((prev) => ({ ...prev, [key]: undefined }));
         }
       } catch (error) {
         toast.error(
@@ -85,16 +76,8 @@ const Settings = () => {
         toast.success(
           response.message || `${key} subscription updated successfully.`
         );
-
-        setSubscriptionState((prev) => ({
-          ...prev,
-          [key]: false,
-        }));
-
-        setFrequencyState((prev) => ({
-          ...prev,
-          [key]: undefined,
-        }));
+        setSubscriptionState((prev) => ({ ...prev, [key]: false }));
+        setFrequencyState((prev) => ({ ...prev, [key]: undefined }));
       } catch (error) {
         toast.error(
           error || `Failed to update ${key} subscription. Please try again.`
@@ -107,10 +90,7 @@ const Settings = () => {
 
   const handleFrequencyChange = async (key, newFrequency) => {
     try {
-      setFrequencyState((prev) => ({
-        ...prev,
-        [key]: newFrequency,
-      }));
+      setFrequencyState((prev) => ({ ...prev, [key]: newFrequency }));
 
       const response = await handleSlackAlert({
         type: alertMap[key],
@@ -138,9 +118,6 @@ const Settings = () => {
       setSubscriptionState(initialState);
     }
   }, [alerts]);
-  const token = localStorage.getItem("token");
-  const userId = token ? jwtDecode(token).id : null;
-  const [openMailModal, setOpenMailModal] = useState(false);
 
   return (
     <Box sx={{ padding: 4 }}>
@@ -176,6 +153,7 @@ const Settings = () => {
                         <TableCell>Subscriber Preferences</TableCell>
                         <TableCell align="center"></TableCell>
                         <TableCell align="center">Frequency</TableCell>
+                        <TableCell align="center">Mail Configuration</TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
@@ -233,6 +211,18 @@ const Settings = () => {
                               </Typography>
                             )}
                           </TableCell>
+                          <TableCell align="center">
+                            {key === "Email" && (
+                              <Button
+                                variant="outlined"
+                                color="primary"
+                                onClick={() => setOpenMailModal(true)}
+                                disabled={!subscriptionState[key]}
+                              >
+                                Select Mail Configuration
+                              </Button>
+                            )}
+                          </TableCell>
                         </TableRow>
                       ))}
                     </TableBody>
@@ -243,6 +233,11 @@ const Settings = () => {
           </Formik>
         </Paper>
       )}
+
+      <MailSetModal
+        open={openMailModal}
+        handleClose={() => setOpenMailModal(false)}
+      />
     </Box>
   );
 };

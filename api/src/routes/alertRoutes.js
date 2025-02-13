@@ -2,9 +2,9 @@ const express = require("express");
 const router = express.Router();
 const {
   getAlerts,
-  createAlert,
   updateAlerts,
   postSlackAlerts,
+  addMailConfiguration,
 } = require("../controllers/alertController");
 
 const { authenticateToken } = require("../middlewares/authMiddleware");
@@ -16,6 +16,8 @@ router.get("/", authenticateToken, getAlerts);
 // ======== POST APIS ========
 
 router.post("/", authenticateToken, postSlackAlerts);
+
+router.post("/addMailConfiguration", authenticateToken, addMailConfiguration);
 
 // ======== PATCH APIS ========
 

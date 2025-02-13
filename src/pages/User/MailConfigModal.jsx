@@ -287,8 +287,6 @@ const MailConfigModal = ({ open, handleClose, userId, configId }) => {
 
   useEffect(() => {
     if (configId) {
-      // Fetch existing config data if we're in edit mode
-      // You can replace this with an API call if needed
       const existingConfig = mailConfigList.find(
         (config) => config.MailConfigurationId === configId
       );
@@ -336,11 +334,9 @@ const MailConfigModal = ({ open, handleClose, userId, configId }) => {
 
     try {
       if (configId) {
-        // If we're editing an existing config
         await handleUpdateMailConfig(formData);
         toast.success("Mail configuration updated successfully!");
       } else {
-        // If we're adding a new config
         await handleAddMailConfig(formData);
         toast.success("Mail configuration added successfully!");
       }

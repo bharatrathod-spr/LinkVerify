@@ -68,63 +68,6 @@ const getAlerts = async (req, res, next) => {
 
 // ===== SLACK INTEGRATION =====
 
-// const postFailureAlerts = async (
-//   email,
-//   sourceUrl,
-//   searchUrl,
-//   failureReasons,
-//   userId
-// ) => {
-//   try {
-//     const userAlert = await AlertSubscription.findOne({
-//       UserId: userId,
-//       "Alerts.Type": { $in: ["slack", "email"] },
-//     });
-
-//     if (!userAlert) {
-//       console.log(`No alerts found for user ${userId}.`);
-//       return { success: false, message: "No alerts configured for this user." };
-//     }
-
-//     const slackAlert = userAlert.Alerts.find((alert) => alert.Type === "slack");
-//     if (slackAlert?.Subscriber) {
-//       const slackMessage = `Source URL: ${sourceUrl}\nSearch URL: ${searchUrl}\nFailure Reasons:\n- ${failureReasons.join(
-//         "\n- "
-//       )}`;
-
-//       const slackResult = await sendSlackNotificationToUser(
-//         email,
-//         slackMessage
-//       );
-//       if (!slackResult.success) {
-//         console.error(
-//           `Failed to send Slack notification for source URL ${sourceUrl}: ${slackResult.message}`
-//         );
-//       }
-//     }
-
-//     const emailAlert = userAlert.Alerts.find((alert) => alert.Type === "email");
-//     if (emailAlert?.Subscriber) {
-//       try {
-//         await sendFailureReasonsMail(
-//           email,
-//           sourceUrl,
-//           searchUrl,
-//           failureReasons
-//         );
-//         console.log(`Email notification sent successfully to ${email}.`);
-//       } catch (emailError) {
-//         console.error("Failed to send email notification:", emailError.message);
-//       }
-//     }
-
-//     return { success: true, message: "Notifications processed successfully." };
-//   } catch (error) {
-//     console.error("Error sending notifications:", error.message);
-//     return { success: false, message: error.message };
-//   }
-// };
-
 const shouldSendAlert = (lastAlertTime, frequency) => {
   if (!lastAlertTime) return true;
 
@@ -147,6 +90,88 @@ const shouldSendAlert = (lastAlertTime, frequency) => {
   }
 };
 
+// const postFailureAlerts = async (
+//   email,
+//   sourceUrl,
+//   searchUrl,
+//   failureReasons,
+//   userId
+// ) => {
+//   try {
+//     const userAlert = await AlertSubscription.findOne({
+//       UserId: userId,
+//       "Alerts.Type": { $in: ["slack", "email"] },
+//     });
+
+//     if (!userAlert) {
+//       console.log(`No alerts found for user ${userId}.`);
+//       return { success: false, message: "No alerts configured for this user." };
+//     }
+
+//     let alertSent = false;
+
+//     for (const alert of userAlert.Alerts) {
+//       if (alert.Subscriber) {
+//         const lastAlertTime = alert.LastSentAt || null;
+//         const shouldSend = shouldSendAlert(lastAlertTime, alert.Frequency);
+
+//         if (!shouldSend) {
+//           console.log(
+//             `Skipping ${alert.Type} alert for ${email} due to frequency settings.`
+//           );
+//           continue;
+//         }
+
+//         if (alert.Type === "slack") {
+//           const slackMessage = `Source URL: ${sourceUrl}\nSearch URL: ${searchUrl}\nFailure Reasons:\n- ${failureReasons.join(
+//             "\n- "
+//           )}`;
+//           const slackResult = await sendSlackNotificationToUser(
+//             email,
+//             slackMessage
+//           );
+
+//           if (!slackResult.success) {
+//             console.error(
+//               `Failed to send Slack notification for source URL ${sourceUrl}: ${slackResult.message}`
+//             );
+//           } else {
+//             alert.LastSentAt = new Date();
+//             alertSent = true;
+//           }
+//         }
+
+//         if (alert.Type === "email") {
+//           try {
+//             await sendFailureReasonsMail(
+//               email,
+//               sourceUrl,
+//               searchUrl,
+//               failureReasons
+//             );
+//             console.log(`Email notification sent successfully to ${email}.`);
+//             alert.LastSentAt = new Date();
+//             alertSent = true;
+//           } catch (emailError) {
+//             console.error(
+//               "Failed to send email notification:",
+//               emailError.message
+//             );
+//           }
+//         }
+//       }
+//     }
+
+//     if (alertSent) {
+//       await userAlert.save();
+//     }
+
+//     return { success: true, message: "Notifications processed successfully." };
+//   } catch (error) {
+//     console.error("Error sending notifications:", error.message);
+//     return { success: false, message: error.message };
+//   }
+// };
 const postFailureAlerts = async (
   email,
   sourceUrl,
@@ -201,6 +226,8 @@ const postFailureAlerts = async (
         if (alert.Type === "email") {
           try {
             await sendFailureReasonsMail(
+              alert._id,
+              alert.MailConfigurationId,
               email,
               sourceUrl,
               searchUrl,
@@ -339,10 +366,45 @@ const updateAlerts = async (req, res, next) => {
   }
 };
 
+const addMailConfiguration = async (req, res) => {
+  const { MailConfigurationId } = req.body;
+  console.log(req.body);
+
+  const mailConfigId =
+    MailConfigurationId?.selectedConfigId || MailConfigurationId;
+
+  if (!MailConfigurationId) {
+    return res
+      .status(400)
+      .json({ message: "Mail Configuration ID is required" });
+  }
+
+  try {
+    const UserId = req.user.UserId;
+
+    const updatedAlert = await Alert.findOneAndUpdate(
+      { UserId },
+      { $set: { MailConfigurationId: mailConfigId } },
+      { new: true, upsert: true }
+    );
+
+    return res.status(200).json({
+      message: "Mail configuration updated successfully",
+      alert: updatedAlert,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      message: "Error updating the mail configuration: " + error.message,
+    });
+  }
+};
+
 module.exports = {
   createAlert,
   getAlerts,
   updateAlerts,
   postSlackAlerts,
   postFailureAlerts,
+  addMailConfiguration,
 };

@@ -79,4 +79,4 @@ async function sendSlackNotificationToUser(EmailAddress, messageText) {
   }
 }
 
-module.exports = { sendSlackNotificationToUser, getUserIdByEmail };
+module.exports = { sendSlackNotificationToUser };

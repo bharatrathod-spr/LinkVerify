@@ -17,7 +17,7 @@ import { Link, useLocation } from "react-router-dom";
 import { useProfile } from "../../hooks/useProfile";
 import Loader from "../../components/Common/Loader";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import { useNavigate } from "react-router-dom"; 
+import { useNavigate } from "react-router-dom";
 
 const ProfileDetail = () => {
   const navigate = useNavigate();
@@ -45,7 +45,12 @@ const ProfileDetail = () => {
           mb: 3,
         }}
       >
-        <Typography variant="h5" gutterBottom>
+        <Typography
+          variant="h5"
+          gutterBottom
+          color="primary"
+          sx={{ fontWeight: "bold" }}
+        >
           URL Audit Details
         </Typography>
         <Button
@@ -100,11 +105,7 @@ const ProfileDetail = () => {
                     }}
                   >
                     <CardContent>
-                      <Typography
-                        variant="h6"
-                        gutterBottom
-                        sx={{ color: "#1976d2" }}
-                      >
+                      <Typography variant="h6" gutterBottom color="primary">
                         Profile Information
                       </Typography>
                       <Table sx={{ minWidth: 350 }}>
@@ -177,11 +178,7 @@ const ProfileDetail = () => {
                     }}
                   >
                     <CardContent>
-                      <Typography
-                        variant="h6"
-                        gutterBottom
-                        sx={{ color: "#1976d2" }}
-                      >
+                      <Typography variant="h6" gutterBottom color="primary">
                         Audit Summary
                       </Typography>
                       <Table sx={{ minWidth: 350 }}>

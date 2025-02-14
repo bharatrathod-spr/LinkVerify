@@ -129,7 +129,7 @@ const ProfileTable = () => {
           }}
         >
           <Stack direction="row" spacing={1} alignItems="center">
-            <Typography variant="h5" gutterBottom sx={{ fontWeight: 500 }}>
+            <Typography variant="h5" gutterBottom color="primary" sx={{ fontWeight: "bold" }}>
               URL Audit Profile
             </Typography>
           </Stack>

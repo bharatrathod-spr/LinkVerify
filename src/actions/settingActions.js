@@ -57,30 +57,6 @@ export const updateUserAlerts = createAsyncThunk(
   }
 );
 
-export const postUserSlackAlerts = createAsyncThunk(
-  "setting/postUserSlackAlerts",
-  async ({ type, frequency }, { rejectWithValue }) => {
-    try {
-      const response = await axiosInstance.post("/alert-subsription", {
-        Type: type,
-        Frequency: frequency,
-      });
-
-      if (!response.data.success) {
-        return rejectWithValue(
-          response.data.message || "Failed to send notification."
-        );
-      }
-
-      return response.data;
-    } catch (error) {
-      return rejectWithValue(
-        error.response?.data?.message || "An error occurred."
-      );
-    }
-  }
-);
-
 export const updateMailConfig = createAsyncThunk(
   "mailConfig/update",
   async (selectedConfigId, { rejectWithValue }) => {
@@ -91,11 +67,46 @@ export const updateMailConfig = createAsyncThunk(
           MailConfigurationId: selectedConfigId,
         }
       );
-      console.log(response, "response");
-      console.log(selectedConfigId, "selectedConfigId.......");
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response.data);
+    }
+  }
+);
+
+export const toggleSubscription = createAsyncThunk(
+  "setting/toggleSubscription",
+  async (type, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.patch(
+        "/alert-subsription/toggleSubscription",
+        {
+          Type: type,
+        }
+      );
+
+      return { type, subscriber: response.data.success };
+    } catch (error) {
+      return rejectAction(error, rejectWithValue);
+    }
+  }
+);
+
+export const setAlertFrequency = createAsyncThunk(
+  "setting/setAlertFrequency",
+  async ({ type, frequency }, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.patch(
+        "/alert-subsription/setAlertFrequency",
+        {
+          Type: type,
+          Frequency: frequency,
+        }
+      );
+
+      return { type, frequency };
+    } catch (error) {
+      return rejectAction(error, rejectWithValue);
     }
   }
 );

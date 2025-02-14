@@ -5,7 +5,7 @@ import {
   fetchMailConfig,
   fetchMailById,
   addMailConfig,
-  updateMailConfig,
+  updateMailConfigurations,
   deleteMailConfig,
 } from "../actions/mailConfigActions";
 import { jwtDecode } from "jwt-decode";
@@ -41,7 +41,7 @@ const useMailConfig = () => {
 
   const handleUpdateMailConfig = (config) => {
     return dispatch(
-      updateMailConfig({
+      updateMailConfigurations({
         ...config,
         MailConfigurationId: config.MailConfigurationId,
       })

@@ -44,7 +44,6 @@ const alertSchema = new Schema(
     },
     MailConfigurationId: {
       type: String,
-      required: true,
     },
     Alerts: {
       type: [alertSubSchema],

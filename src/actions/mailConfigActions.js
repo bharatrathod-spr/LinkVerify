@@ -48,13 +48,12 @@ export const addMailConfig = createAsyncThunk(
   }
 );
 
-export const updateMailConfig = createAsyncThunk(
+export const updateMailConfigurations = createAsyncThunk(
   "mailConfig/updateMailConfig",
-  async (config, { rejectWithValue }) => {
+  async ({ MailConfigurationId }, { rejectWithValue }) => {
     try {
       const response = await axiosInstance.put(
-        `/mail-config/${config.MailConfigurationId}`,
-        config
+        `/mail-config/${MailConfigurationId}`
       );
       return response.data;
     } catch (error) {

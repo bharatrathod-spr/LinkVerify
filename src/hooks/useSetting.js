@@ -3,7 +3,8 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   fetchUserAlerts,
   updateUserAlerts,
-  postUserSlackAlerts,
+  toggleSubscription,
+  setAlertFrequency,
 } from "../actions/settingActions";
 
 const useFetchUserAlerts = () => {
@@ -22,16 +23,34 @@ const useFetchUserAlerts = () => {
     return dispatch(updateUserAlerts(payload));
   };
 
-  const handleSlackAlert = async (type) => {
+  const handleToggleSubscription = async (type) => {
     try {
-      const response = await dispatch(postUserSlackAlerts(type)).unwrap();
+      const response = await dispatch(toggleSubscription(type)).unwrap();
       return response;
     } catch (error) {
       throw error;
     }
   };
 
-  return { alerts, loading, error, handleUpdate, handleSlackAlert };
+  const handleSetFrequency = async (type, frequency) => {
+    try {
+      const response = await dispatch(
+        setAlertFrequency({ type, frequency })
+      ).unwrap();
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  return {
+    alerts,
+    loading,
+    error,
+    handleUpdate,
+    handleToggleSubscription,
+    handleSetFrequency,
+  };
 };
 
 export default useFetchUserAlerts;

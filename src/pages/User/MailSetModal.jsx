@@ -15,12 +15,11 @@ import { updateMailConfig } from "../../actions/settingActions";
 import { toast } from "react-toastify";
 import { useAuth } from "../../hooks/useAuth";
 import useMailConfig from "../../hooks/useMail";
-import { Grid } from "@material-ui/core";
 
 const MailSetModal = ({ open, handleClose }) => {
   const dispatch = useDispatch();
   const { user } = useAuth();
-  const userId = user.UserId;
+  const userId = user?.UserId || "";
 
   const { mailConfigList } = useMailConfig();
 
@@ -28,7 +27,6 @@ const MailSetModal = ({ open, handleClose }) => {
   const { loading = false, error } = mailConfigState;
 
   const [selectedConfigId, setSelectedConfigId] = useState("");
-
   useEffect(() => {
     if (open && userId) {
       dispatch(fetchMailConfig(userId));
@@ -38,8 +36,6 @@ const MailSetModal = ({ open, handleClose }) => {
   const handleRadioChange = (configId) => {
     setSelectedConfigId(configId);
   };
-
-  console.log(selectedConfigId, "selectedConfigId");
 
   const handleSave = async () => {
     if (!selectedConfigId) {
@@ -118,7 +114,7 @@ const MailSetModal = ({ open, handleClose }) => {
               textAlign: "center",
               padding: 2,
               fontWeight: "600",
-              color: "rgba(50, 69, 103, 1)",
+              color: "#5951da",
             }}
           >
             <Typography>No Mail Configurations Available</Typography>

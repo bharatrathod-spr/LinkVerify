@@ -1,4 +1,5 @@
-//Setting.jsx
+// //Setting.jsx
+
 import React, { useEffect, useState } from "react";
 import {
   Typography,
@@ -17,13 +18,19 @@ import { Form, Formik } from "formik";
 import useFetchUserAlerts from "../../hooks/useSetting";
 import { toast } from "react-toastify";
 import MailSetModal from "./MailSetModal";
+import {
+  toggleSubscription,
+  setAlertFrequency,
+} from "../../actions/settingActions";
+import { useDispatch } from "react-redux";
 
 const Settings = () => {
-  const { alerts, loading, handleUpdate, handleSlackAlert } =
-    useFetchUserAlerts();
+  const dispatch = useDispatch();
+  const { alerts, loading, handleUpdate } = useFetchUserAlerts();
 
   const [subscriptionState, setSubscriptionState] = useState({});
   const [frequencyState, setFrequencyState] = useState({});
+  const [selectedMailConfig, setSelectedMailConfig] = useState(null);
   const [openMailModal, setOpenMailModal] = useState(false);
 
   const alertMap = {
@@ -32,58 +39,41 @@ const Settings = () => {
     Sms: "sms",
   };
 
+  useEffect(() => {
+    if (alerts) {
+      const initialSubscriptionState = Object.keys(alerts).reduce(
+        (acc, key) => {
+          acc[key] = alerts[key]?.Subscriber || false;
+          return acc;
+        },
+        {}
+      );
+      setSubscriptionState(initialSubscriptionState);
+
+      const initialFrequencyState = Object.keys(alerts).reduce((acc, key) => {
+        acc[key] = alerts[key]?.Frequency || "only_one_time";
+        return acc;
+      }, {});
+      setFrequencyState(initialFrequencyState);
+
+      if (alerts.Email?.MailConfigurationId) {
+        setSelectedMailConfig(alerts.Email.MailConfigurationId);
+      }
+    }
+  }, [alerts]);
+
   const handleSubscribeClick = async (key) => {
     if (alertMap[key]) {
       try {
-        const frequency = frequencyState[key] || "only_one_time";
-        setSubscriptionState((prev) => ({ ...prev, [key]: true }));
-
-        const response = await handleSlackAlert({
-          type: alertMap[key],
-          frequency,
-        });
-
-        toast.success(
-          response.message || `${key} subscription updated successfully.`
-        );
         setSubscriptionState((prev) => ({ ...prev, [key]: !prev[key] }));
 
-        if (!subscriptionState[key]) {
-          setFrequencyState((prev) => ({ ...prev, [key]: "only_one_time" }));
-        } else {
-          setFrequencyState((prev) => ({ ...prev, [key]: undefined }));
-        }
+        await dispatch(toggleSubscription(alertMap[key]));
+
+        toast.success(`${key} subscription updated successfully.`);
       } catch (error) {
         toast.error(
           error || `Failed to update ${key} subscription. Please try again.`
         );
-      } finally {
-        setSubscriptionState((prev) => ({ ...prev, [key]: false }));
-      }
-    }
-  };
-
-  const handleUnsubscribeClick = async (key) => {
-    if (alertMap[key]) {
-      try {
-        setSubscriptionState((prev) => ({ ...prev, [key]: true }));
-
-        const response = await handleSlackAlert({
-          type: alertMap[key],
-          frequency: "only_one_time",
-        });
-
-        toast.success(
-          response.message || `${key} subscription updated successfully.`
-        );
-        setSubscriptionState((prev) => ({ ...prev, [key]: false }));
-        setFrequencyState((prev) => ({ ...prev, [key]: undefined }));
-      } catch (error) {
-        toast.error(
-          error || `Failed to update ${key} subscription. Please try again.`
-        );
-      } finally {
-        setSubscriptionState((prev) => ({ ...prev, [key]: false }));
       }
     }
   };
@@ -92,10 +82,9 @@ const Settings = () => {
     try {
       setFrequencyState((prev) => ({ ...prev, [key]: newFrequency }));
 
-      const response = await handleSlackAlert({
-        type: alertMap[key],
-        frequency: newFrequency,
-      });
+      await dispatch(
+        setAlertFrequency({ type: alertMap[key], frequency: newFrequency })
+      );
 
       toast.success(`Frequency updated to ${newFrequency} for ${key}.`);
     } catch (error) {
@@ -105,24 +94,10 @@ const Settings = () => {
     }
   };
 
-  const handleFormSubmit = (values) => {
-    handleUpdate(values);
-  };
-
-  useEffect(() => {
-    if (alerts) {
-      const initialState = Object.keys(alerts).reduce((acc, key) => {
-        acc[key] = alerts[key]?.Subscriber || false;
-        return acc;
-      }, {});
-      setSubscriptionState(initialState);
-    }
-  }, [alerts]);
-
   return (
     <Box sx={{ padding: 4 }}>
-      <Typography variant="h5" gutterBottom>
-        Settings
+      <Typography variant="h5" color="primary" sx={{ fontWeight: "bold" }}>
+        Alert Subscriptions
       </Typography>
       {loading ? (
         <Box
@@ -140,13 +115,10 @@ const Settings = () => {
           elevation={3}
           sx={{ padding: 2, marginTop: 2, position: "relative" }}
         >
-          <Formik initialValues={alerts} onSubmit={handleFormSubmit}>
-            {({ values, handleChange }) => (
+          <Formik initialValues={alerts} onSubmit={handleUpdate}>
+            {() => (
               <Form>
                 <TableContainer component={Paper}>
-                  <Typography variant="h6" sx={{ padding: "16px" }}>
-                    Alert Subscriptions
-                  </Typography>
                   <Table>
                     <TableHead>
                       <TableRow>
@@ -170,11 +142,7 @@ const Settings = () => {
                               color={
                                 subscriptionState[key] ? "secondary" : "primary"
                               }
-                              onClick={() =>
-                                subscriptionState[key]
-                                  ? handleUnsubscribeClick(key)
-                                  : handleSubscribeClick(key)
-                              }
+                              onClick={() => handleSubscribeClick(key)}
                             >
                               {subscriptionState[key]
                                 ? "Unsubscribe"
@@ -237,6 +205,8 @@ const Settings = () => {
       <MailSetModal
         open={openMailModal}
         handleClose={() => setOpenMailModal(false)}
+        selectedMailConfig={selectedMailConfig}
+        setSelectedMailConfig={setSelectedMailConfig}
       />
     </Box>
   );

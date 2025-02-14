@@ -232,6 +232,7 @@ function shouldSendAlert(lastAlertTime, frequency) {
       return false;
     case "per_minute":
       return now - lastSent >= 60 * 1000;
+
     case "per_hour":
       return now - lastSent >= 60 * 60 * 1000;
     case "per_5_hours":
@@ -298,6 +299,15 @@ const cronjob = async () => {
                   if (!alertResponse.success) {
                     log(
                       `Alert failed for ${user.EmailAddress}: ${alertResponse.message}`
+                    );
+                  } else {
+                    alert.LastAlertTime = new Date();
+                    await AlertSubscription.updateOne(
+                      {
+                        UserId: user.UserId,
+                        "Alerts.Subscriber": alert.Subscriber,
+                      },
+                      { $set: { "Alerts.$.LastAlertTime": new Date() } }
                     );
                   }
 

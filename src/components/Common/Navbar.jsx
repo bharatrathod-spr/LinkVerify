@@ -21,6 +21,7 @@ import {
   LockRounded,
   DashboardRounded,
   MailRounded,
+  Notifications,
 } from "@mui/icons-material";
 
 import useMobileDrawer from "../../hooks/useMobileDrawer";
@@ -127,12 +128,12 @@ const Navbar = ({ role }) => {
               <DashboardRounded sx={{ marginRight: 1 }} /> My Activities
             </MenuItem>,
             <MenuItem
-              key="settings"
+              key="AlertSubscriptions"
               component={Link}
-              to="/user/settings"
+              to="/user/AlertSubscriptions"
               onClick={handleCloseMenu}
             >
-              <SettingsRounded sx={{ marginRight: 1 }} /> Settings
+              <Notifications sx={{ marginRight: 1 }} /> Alert Subscriptions
             </MenuItem>,
             <MenuItem
               key="mail-configuration"

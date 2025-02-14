@@ -3,7 +3,7 @@ import { createSlice } from "@reduxjs/toolkit";
 import {
   fetchMailConfig,
   addMailConfig,
-  updateMailConfig,
+  updateMailConfigurations,
   deleteMailConfig,
 } from "../actions/mailConfigActions";
 
@@ -45,10 +45,10 @@ const mailConfigSlice = createSlice({
       })
 
       // Update mail configuration
-      .addCase(updateMailConfig.pending, (state) => {
+      .addCase(updateMailConfigurations.pending, (state) => {
         state.loading = true;
       })
-      .addCase(updateMailConfig.fulfilled, (state, action) => {
+      .addCase(updateMailConfigurations.fulfilled, (state, action) => {
         state.loading = false;
         const index = state.mailConfigList.findIndex(
           (config) =>
@@ -59,7 +59,7 @@ const mailConfigSlice = createSlice({
           state.mailConfigList[index] = action.payload;
         }
       })
-      .addCase(updateMailConfig.rejected, (state, action) => {
+      .addCase(updateMailConfigurations.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })

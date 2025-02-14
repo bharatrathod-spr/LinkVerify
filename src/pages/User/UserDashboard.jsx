@@ -18,7 +18,7 @@ const UserDashboard = () => {
           alignItems: "start",
         }}
       >
-        <Typography variant="h5" gutterBottom sx={{fontWeight: 600}}>
+        <Typography variant="h5" color="primary" sx={{ fontWeight: "bold" }}>
           Dashboard
         </Typography>
       </Box>

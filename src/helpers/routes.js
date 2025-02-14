@@ -5,12 +5,8 @@ import User from "../components/Layouts/User";
 // pages
 import pages from "./pages";
 
-import {
-  AlignHorizontalLeftRounded,
-  BarChartRounded,
-  WidgetsRounded,
-  PeopleRounded,
-} from "./icons";
+import { WidgetsRounded, PeopleRounded } from "./icons";
+import { Assessment, Event } from "@mui/icons-material";
 
 const routes = [
   {
@@ -55,7 +51,7 @@ const routes = [
         title: "URL Audit Profile",
         path: "URLAuditProfile",
         component: pages.ProfileTable,
-        icon: BarChartRounded,
+        icon: Assessment,
         isDisplay: true,
         description:
           "View and manage your website's URL Audit Profiles. Track and analyze SEO link data effortlessly.",
@@ -66,7 +62,7 @@ const routes = [
         title: "Audit Logs",
         path: "AuditLogs",
         component: pages.LogsTable,
-        icon: AlignHorizontalLeftRounded,
+        icon: Event,
         isDisplay: true,
         description:
           "Access detailed logs of your website's link validations and SEO performance metrics.",
@@ -108,8 +104,8 @@ const routes = [
         keywords: "user activities, activity logs, tracking, SEO tools",
       },
       {
-        title: "Settings",
-        path: "settings",
+        title: "Alert Subscriptions",
+        path: "AlertSubscriptions",
         component: pages.Setting,
         description:
           "Configure your account and application settings for a personalized experience.",

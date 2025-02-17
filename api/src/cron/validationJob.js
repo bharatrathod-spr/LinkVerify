@@ -279,41 +279,41 @@ const cronjob = async () => {
           });
 
           if (alertSettings && Array.isArray(alertSettings.Alerts)) {
+            const alertTypes = [];
+
             for (const alert of alertSettings.Alerts) {
               if (alert.Subscriber) {
                 const canSendAlert = shouldSendAlert(
                   alert.LastAlertTime,
                   alert.Frequency
                 );
-
-                if (canSendAlert) {
-                  const alertResponse = await postFailureAlerts(
-                    user.EmailAddress,
-                    SourceLink,
-                    SearchLink,
-                    failureReasons,
-                    user.UserId,
-                    alert.Type
-                  );
-
-                  if (!alertResponse.success) {
-                    log(
-                      `Alert failed for ${user.EmailAddress}: ${alertResponse.message}`
-                    );
-                  } else {
-                    alert.LastAlertTime = new Date();
-                    await AlertSubscription.updateOne(
-                      {
-                        UserId: user.UserId,
-                        "Alerts.Subscriber": alert.Subscriber,
-                      },
-                      { $set: { "Alerts.$.LastAlertTime": new Date() } }
-                    );
-                  }
-
-                  alert.LastAlertTime = new Date();
-                  await alertSettings.save();
+                if (canSendAlert && !alertTypes.includes(alert.Type)) {
+                  alertTypes.push(alert.Type);
                 }
+              }
+            }
+
+            if (alertTypes.length > 0) {
+              const alertResponse = await postFailureAlerts(
+                user.EmailAddress,
+                SourceLink,
+                SearchLink,
+                failureReasons,
+                user.UserId,
+                alertTypes
+              );
+
+              if (!alertResponse.success) {
+                log(
+                  `Alert failed for ${user.EmailAddress}: ${alertResponse.message}`
+                );
+              } else {
+                for (const alert of alertSettings.Alerts) {
+                  if (alertTypes.includes(alert.Type)) {
+                    alert.LastAlertTime = new Date();
+                  }
+                }
+                await alertSettings.save();
               }
             }
           } else {

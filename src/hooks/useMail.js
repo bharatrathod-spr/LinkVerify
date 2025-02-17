@@ -51,6 +51,7 @@ const useMailConfig = () => {
   const handleDeleteMailConfig = (configId) => {
     return dispatch(deleteMailConfig({ UserId, configId }));
   };
+
   const handleFetchMailConfigById = (configId) => {
     dispatch(fetchMailById(configId));
   };

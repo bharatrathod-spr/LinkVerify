@@ -1,7 +1,7 @@
-//mailSlice.js
 import { createSlice } from "@reduxjs/toolkit";
 import {
   fetchMailConfig,
+  fetchMailTable,
   addMailConfig,
   updateMailConfigurations,
   deleteMailConfig,
@@ -9,6 +9,7 @@ import {
 
 const initialState = {
   mailConfigList: [],
+  selectedMailConfig: null,
   loading: false,
   error: null,
 };
@@ -18,6 +19,7 @@ const mailConfigSlice = createSlice({
   initialState,
   reducers: {},
   extraReducers: (builder) => {
+    // Fetch Mail Configs
     builder
       .addCase(fetchMailConfig.pending, (state) => {
         state.loading = true;
@@ -31,7 +33,22 @@ const mailConfigSlice = createSlice({
         state.error = action.payload;
       })
 
-      // Add mail configuration
+      // Fetch Mail Table (Selected Configuration)
+      .addCase(fetchMailTable.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(fetchMailTable.fulfilled, (state, action) => {
+        state.loading = false;
+        state.selectedMailConfig = action.payload?.[0] || null;
+        
+        console.log(state.selectedMailConfig, "state.selectedMailConfig");
+      })
+      .addCase(fetchMailTable.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+
+      // Add Mail Config
       .addCase(addMailConfig.pending, (state) => {
         state.loading = true;
       })
@@ -44,7 +61,7 @@ const mailConfigSlice = createSlice({
         state.error = action.payload;
       })
 
-      // Update mail configuration
+      // Update Mail Config
       .addCase(updateMailConfigurations.pending, (state) => {
         state.loading = true;
       })
@@ -54,7 +71,6 @@ const mailConfigSlice = createSlice({
           (config) =>
             config.MailConfigurationId === action.payload.MailConfigurationId
         );
-
         if (index !== -1) {
           state.mailConfigList[index] = action.payload;
         }
@@ -64,7 +80,7 @@ const mailConfigSlice = createSlice({
         state.error = action.payload;
       })
 
-      // Delete mail configuration
+      // Delete Mail Config
       .addCase(deleteMailConfig.pending, (state) => {
         state.loading = true;
       })

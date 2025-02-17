@@ -1,4 +1,5 @@
 const MailConfiguration = require("../models/mailConfigModel");
+const AlertSubscription = require("../models/alertModel");
 
 const createMailConfiguration = async (req, res) => {
   try {
@@ -76,6 +77,50 @@ const getMailConfigurationDetails = async (req, res) => {
   }
 };
 
+const getMailConfigurationByAlertSubscription = async (req, res) => {
+  const { UserId } = req.user;
+  try {
+    const alertSubscription = await AlertSubscription.find({
+      UserId,
+    });
+
+    if (!alertSubscription || alertSubscription.length === 0) {
+      return res.status(404).json({
+        statusCode: 404,
+        message: `No alert subscription found for UserId: ${UserId}`,
+      });
+    }
+
+    const mailConfigIds = alertSubscription.map(
+      (sub) => sub.MailConfigurationId
+    );
+
+    const mailConfigurations = await MailConfiguration.find({
+      MailConfigurationId: { $in: mailConfigIds },
+      IsDelete: false,
+    });
+
+    if (!mailConfigurations || mailConfigurations.length === 0) {
+      return res.status(404).json({
+        statusCode: 404,
+        message: `No mail configuration found for UserId: ${UserId}`,
+      });
+    }
+
+    return res.status(200).json({
+      statusCode: 200,
+      message: `Mail configurations fetched successfully`,
+      result: mailConfigurations,
+    });
+  } catch (error) {
+    console.error(error.message);
+    return res.status(500).json({
+      statusCode: 500,
+      message: "Something went wrong, please try later!",
+    });
+  }
+};
+
 const updateMailConfiguration = async (req, res) => {
   const { MailConfigurationId } = req.params;
   const updateData = req.body;
@@ -136,4 +181,5 @@ module.exports = {
   getMailConfigurationDetails,
   updateMailConfiguration,
   deleteMailConfiguration,
+  getMailConfigurationByAlertSubscription,
 };

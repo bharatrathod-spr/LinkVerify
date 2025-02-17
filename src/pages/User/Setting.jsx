@@ -69,7 +69,7 @@ const Settings = () => {
 
         await dispatch(toggleSubscription(alertMap[key]));
 
-        toast.success(`${key} subscription updated successfully.`);
+        toast.success(`${key} subscription updated successfully!`);
       } catch (error) {
         toast.error(
           error || `Failed to update ${key} subscription. Please try again.`

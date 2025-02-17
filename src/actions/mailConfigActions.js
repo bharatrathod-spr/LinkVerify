@@ -16,6 +16,21 @@ export const fetchMailConfig = createAsyncThunk(
   }
 );
 
+export const fetchMailTable = createAsyncThunk(
+  "mailConfig/fetchMailTable",
+  async (UserId, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.get(
+        `/mail-config/selectedmail/${UserId}`
+      );
+      return response.data.result || [];
+    } catch (error) {
+      const errorMessage = error.response?.data?.message || error.message;
+      return rejectWithValue(errorMessage);
+    }
+  }
+);
+
 export const fetchMailById = createAsyncThunk(
   "mailConfig/fetchMailById",
   async (configId, { rejectWithValue }) => {

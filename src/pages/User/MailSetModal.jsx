@@ -10,7 +10,7 @@ import {
   Typography,
 } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchMailConfig } from "../../actions/mailConfigActions";
+import { fetchMailTable } from "../../actions/mailConfigActions";
 import { updateMailConfig } from "../../actions/settingActions";
 import { toast } from "react-toastify";
 import { useAuth } from "../../hooks/useAuth";
@@ -22,16 +22,27 @@ const MailSetModal = ({ open, handleClose }) => {
   const userId = user?.UserId || "";
 
   const { mailConfigList } = useMailConfig();
-
-  const mailConfigState = useSelector((state) => state.mailConfig) || {};
-  const { loading = false, error } = mailConfigState;
+  const { loading, error } = useSelector((state) => state.mailConfig) || {};
 
   const [selectedConfigId, setSelectedConfigId] = useState("");
+
   useEffect(() => {
     if (open && userId) {
-      dispatch(fetchMailConfig(userId));
+      dispatch(fetchMailTable(userId));
     }
-  }, [open, dispatch, userId]);
+  }, [open, userId, dispatch]);
+
+  useEffect(() => {
+    if (mailConfigList.length > 0) {
+      const selectedConfig = mailConfigList.find(
+        (config) => config.MailConfigurationId === selectedConfigId
+      );
+      if (selectedConfig) {
+        setSelectedConfigId(selectedConfig.MailConfigurationId);
+        console.log(selectedConfig, "selectedConfig");
+      }
+    }
+  }, [mailConfigList, selectedConfigId]);
 
   const handleRadioChange = (configId) => {
     setSelectedConfigId(configId);
@@ -136,21 +147,15 @@ const MailSetModal = ({ open, handleClose }) => {
                   backgroundColor: "#f0f0f0",
                 },
               }}
-              onClick={() => handleRadioChange(config?.MailConfigurationId)}
+              onClick={() => handleRadioChange(config.MailConfigurationId)}
             >
               <Box>
                 <input
                   type="radio"
                   name="mail-config"
-                  checked={selectedConfigId === config?.MailConfigurationId}
-                  onChange={() =>
-                    handleRadioChange(config?.MailConfigurationId)
-                  }
-                  style={{
-                    width: "20px",
-                    height: "20px",
-                    cursor: "pointer",
-                  }}
+                  checked={selectedConfigId === config.MailConfigurationId}
+                  onChange={() => handleRadioChange(config.MailConfigurationId)}
+                  style={{ width: "20px", height: "20px", cursor: "pointer" }}
                 />
               </Box>
 
@@ -159,13 +164,11 @@ const MailSetModal = ({ open, handleClose }) => {
               >
                 {config?.Host}
               </Box>
-
               <Box
                 sx={{ flex: 1, textAlign: "center", wordBreak: "break-word" }}
               >
                 {config?.Port}
               </Box>
-
               <Box
                 sx={{ flex: 1, textAlign: "center", wordBreak: "break-word" }}
               >

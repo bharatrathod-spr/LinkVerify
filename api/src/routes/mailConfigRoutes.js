@@ -6,6 +6,7 @@ const {
   getMailConfigurationDetails,
   updateMailConfiguration,
   deleteMailConfiguration,
+  getMailConfigurationByAlertSubscription,
 } = require("../controllers/mailConfigController");
 
 const { authenticateToken } = require("../middlewares/authMiddleware");
@@ -15,6 +16,12 @@ const router = express.Router();
 // ======== GET APIS ========
 
 router.get("/:UserId", authenticateToken, getMailConfigurationDetails);
+
+router.get(
+  "/selectedmail/:UserId",
+  authenticateToken,
+  getMailConfigurationByAlertSubscription
+);
 
 router.get(
   "/mail-config/:MailConfigurationId",

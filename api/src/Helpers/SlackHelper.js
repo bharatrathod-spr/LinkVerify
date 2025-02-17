@@ -1,9 +1,14 @@
 const { WebClient } = require("@slack/web-api");
 require("dotenv").config();
 
-const token =
-  process.env.SLACK_TOKEN_KEY ||
-  "xoxb-7353243273460-8417591174327-0IPwz1tjBvajHRpcvxpKQMD6";
+const token = process.env.SLACK_TOKEN_KEY;
+
+if (!token) {
+  console.error(
+    "Slack token is missing. Please check your environment variables."
+  );
+  process.exit(1);
+}
 
 const web = new WebClient(token);
 
@@ -27,27 +32,50 @@ async function getUserIdByEmail(EmailAddress) {
       };
     }
   } catch (error) {
-    if (error.data && error.data.error === "users_not_found") {
-      return {
-        success: false,
-        statusCode: 404,
-        message: `User with EmailAddress ${EmailAddress} is not integrated with Slack. Cannot send Slack message`,
-      };
+    if (error.data) {
+      switch (error.data.error) {
+        case "invalid_auth":
+          return {
+            success: false,
+            statusCode: 401,
+            message:
+              "Slack authentication failed. The token is invalid or expired.",
+          };
+        case "users_not_found":
+          return {
+            success: false,
+            statusCode: 404,
+            message: `User with Email ${EmailAddress} is not found in Slack.`,
+          };
+        case "ratelimited":
+          return {
+            success: false,
+            statusCode: 429,
+            message: "Slack API rate limit exceeded. Please try again later.",
+          };
+        default:
+          return {
+            success: false,
+            statusCode: 500,
+            message: `Slack API error: ${error.data.error}`,
+          };
+      }
     } else {
       return {
         success: false,
         statusCode: 500,
-        message: `Error fetching user by EmailAddress: ${error.message}`,
+        message: `Unexpected error while fetching user by Email: ${error.message}`,
       };
     }
   }
 }
 
+// Function to send Slack message
 async function sendSlackNotificationToUser(EmailAddress, messageText) {
   const userResult = await getUserIdByEmail(EmailAddress);
 
   if (!userResult.success) {
-    console.log("Slack Notification Error:", userResult.message);
+    console.error("Slack Notification Error:", userResult.message);
     return userResult;
   }
 
@@ -59,23 +87,48 @@ async function sendSlackNotificationToUser(EmailAddress, messageText) {
       text: messageText,
     });
 
-    const successMessage = "Message sent successfully!";
-
     return {
       success: true,
       statusCode: 200,
-      message: successMessage,
+      message: "Message sent successfully!",
       timestamp: result.ts,
     };
   } catch (error) {
-    const errorMessage = `Error sending message: ${error.message}`;
-    console.error(errorMessage);
-
-    return {
-      success: false,
-      statusCode: 500,
-      message: errorMessage,
-    };
+    if (error.data) {
+      switch (error.data.error) {
+        case "invalid_auth":
+          return {
+            success: false,
+            statusCode: 401,
+            message:
+              "Slack authentication failed. The token is invalid or expired.",
+          };
+        case "ratelimited":
+          return {
+            success: false,
+            statusCode: 429,
+            message: "Slack API rate limit exceeded. Please try again later.",
+          };
+        case "channel_not_found":
+          return {
+            success: false,
+            statusCode: 404,
+            message: `Slack channel for user ${EmailAddress} not found.`,
+          };
+        default:
+          return {
+            success: false,
+            statusCode: 500,
+            message: `Slack API error: ${error.data.error}`,
+          };
+      }
+    } else {
+      return {
+        success: false,
+        statusCode: 500,
+        message: `Unexpected error while sending Slack message: ${error.message}`,
+      };
+    }
   }
 }
 

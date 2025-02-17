@@ -1,6 +1,4 @@
-// //MailConfiguration.jsx
-
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Box,
   Button,
@@ -16,6 +14,7 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  TextField,
 } from "@mui/material";
 import MailConfigModal from "./MailConfigModal";
 import useMailConfig from "../../hooks/useMail";
@@ -23,15 +22,27 @@ import { toast } from "react-toastify";
 import { useAuth } from "../../hooks/useAuth";
 
 const MailConfiguration = () => {
-  const { mailConfigList, handleDeleteMailConfig, handleFetchMailConfigById } =
-    useMailConfig();
+  const { mailConfigList, handleDeleteMailConfig } = useMailConfig();
   const { user } = useAuth();
-  const userId = user.UserId;
+  const userId = user?.UserId;
 
   const [open, setOpen] = useState(false);
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [selectedConfigId, setSelectedConfigId] = useState(null);
   const [editConfigId, setEditConfigId] = useState(null);
+
+  const [filter, setFilter] = useState("");
+  const [filteredConfigs, setFilteredConfigs] = useState([]);
+
+  useEffect(() => {
+    setFilteredConfigs(
+      mailConfigList?.filter((config) =>
+        [config?.Host, config?.User, config?.Mail].some((field) =>
+          field?.toLowerCase().includes(filter.toLowerCase())
+        )
+      ) || []
+    );
+  }, [mailConfigList, filter]);
 
   const handleAddClick = () => {
     setOpen(true);
@@ -40,7 +51,6 @@ const MailConfiguration = () => {
 
   const handleEditClick = (config) => {
     setEditConfigId(config.MailConfigurationId);
-    handleFetchMailConfigById(config.MailConfigurationId);
     setOpen(true);
   };
 
@@ -51,21 +61,26 @@ const MailConfiguration = () => {
 
   const handleConfirmDelete = async () => {
     try {
-      await handleDeleteMailConfig(selectedConfigId);
-      toast.success("Mail configuration deleted successfully!");
       setOpenDeleteDialog(false);
+
+      toast.success("Mail configuration deleted successfully!");
+
+      setFilteredConfigs((prev) =>
+        prev.filter((config) => config.MailConfigurationId !== selectedConfigId)
+      );
+
+      await handleDeleteMailConfig(selectedConfigId);
+      toast.success("Mail configuration deleted successfully!", {
+        autoClose: 3000,
+      });
     } catch (error) {
-      toast.error("Failed to delete mail configuration.");
+      setFilteredConfigs(mailConfigList);
+      const errorMessage =
+        error.response?.data?.message ||
+        "Failed to delete the mail configuration. Please try again.";
+      toast.error(errorMessage, { autoClose: 5000 });
+    } finally {
     }
-  };
-
-  const handleCloseDeleteDialog = () => {
-    setOpenDeleteDialog(false);
-  };
-
-  const handleClose = () => {
-    setOpen(false);
-    setEditConfigId(null);
   };
 
   return (
@@ -73,6 +88,16 @@ const MailConfiguration = () => {
       <Typography variant="h5" color="primary" sx={{ fontWeight: "bold" }}>
         Mail Configurations
       </Typography>
+
+      <TextField
+        label="Filter"
+        variant="outlined"
+        size="small"
+        value={filter}
+        onChange={(e) => setFilter(e.target.value)}
+        sx={{ mb: 2, width: "300px" }}
+      />
+
       <Button
         variant="contained"
         color="primary"
@@ -95,8 +120,8 @@ const MailConfiguration = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {mailConfigList.length > 0 ? (
-              mailConfigList.map((config) => (
+            {filteredConfigs.length > 0 ? (
+              filteredConfigs.map((config) => (
                 <TableRow key={config.MailConfigurationId}>
                   <TableCell>{config.Host}</TableCell>
                   <TableCell>{config.Port}</TableCell>
@@ -111,6 +136,7 @@ const MailConfiguration = () => {
                       onClick={() =>
                         handleDeleteClick(config.MailConfigurationId)
                       }
+                      color="error"
                     >
                       Delete
                     </Button>
@@ -130,21 +156,19 @@ const MailConfiguration = () => {
 
       <Dialog
         open={openDeleteDialog}
-        onClose={handleCloseDeleteDialog}
-        aria-labelledby="delete-dialog-title"
-        aria-describedby="delete-dialog-description"
+        onClose={() => setOpenDeleteDialog(false)}
       >
-        <DialogTitle id="delete-dialog-title">Confirm Deletion</DialogTitle>
+        <DialogTitle>Confirm Deletion</DialogTitle>
         <DialogContent>
-          <Typography id="delete-dialog-description">
+          <Typography>
             Are you sure you want to delete this mail configuration?
           </Typography>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleCloseDeleteDialog} color="primary">
+          <Button onClick={() => setOpenDeleteDialog(false)} color="primary">
             Cancel
           </Button>
-          <Button onClick={handleConfirmDelete} color="secondary">
+          <Button onClick={handleConfirmDelete} color="error">
             Delete
           </Button>
         </DialogActions>
@@ -152,7 +176,7 @@ const MailConfiguration = () => {
 
       <MailConfigModal
         open={open}
-        handleClose={handleClose}
+        handleClose={() => setOpen(false)}
         userId={userId}
         configId={editConfigId}
       />

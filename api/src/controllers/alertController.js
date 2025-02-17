@@ -71,77 +71,65 @@ const postFailureAlerts = async (
   sourceUrl,
   searchUrl,
   failureReasons,
-  userId
+  userId,
+  alertTypes
 ) => {
   try {
     const userAlert = await AlertSubscription.findOne({
       UserId: userId,
-      "Alerts.Type": { $in: ["slack", "email"] },
+      "Alerts.Type": { $in: alertTypes },
     });
 
     if (!userAlert) {
-      console.log(`No alerts found for user ${userId}.`);
       return { success: false, message: "No alerts configured for this user." };
     }
 
     let alertSent = false;
 
-    for (const alert of userAlert.Alerts) {
-      if (!alert.Subscriber) continue;
+    if (alertTypes.includes("slack")) {
+      const slackMessage = `Source URL: ${sourceUrl}\nSearch URL: ${searchUrl}\nFailure Reasons:\n- ${failureReasons.join(
+        "\n- "
+      )}`;
 
-      if (alert.Type === "slack") {
-        const slackMessage = `Source URL: ${sourceUrl}\nSearch URL: ${searchUrl}\nFailure Reasons:\n- ${failureReasons.join(
-          "\n- "
-        )}`;
-        const slackResult = await sendSlackNotificationToUser(
-          email,
-          slackMessage
+      const slackResult = await sendSlackNotificationToUser(
+        email,
+        slackMessage
+      );
+
+      if (slackResult.success) {
+        alertSent = true;
+      } else {
+        console.error(
+          `Failed to send Slack notification: ${slackResult.message}`
         );
-
-        if (!slackResult.success) {
-          console.error(
-            `Failed to send Slack notification for source URL ${sourceUrl}: ${slackResult.message}`
-          );
-        } else {
-          alert.LastAlertTime = new Date();
-          alertSent = true;
-        }
       }
+    }
 
-      if (alert.Type === "email") {
-        try {
-          const mailConfigId = userAlert.MailConfigurationId;
-          if (!mailConfigId) {
-            console.error(`No mail configuration ID found for user ${userId}`);
-            continue;
-          }
-
+    if (alertTypes.includes("email")) {
+      try {
+        const mailConfigId = userAlert.MailConfigurationId;
+        if (!mailConfigId) {
+          console.error(`No mail configuration ID found for user ${userId}`);
+        } else {
           const mailConfig = await MailConfiguration.findOne({
             MailConfigurationId: mailConfigId,
             IsDelete: false,
           });
-
-          if (!mailConfig) {
+          if (mailConfig) {
+            await sendFailureReasonsMail(
+              email,
+              sourceUrl,
+              searchUrl,
+              failureReasons,
+              mailConfig
+            );
+            alertSent = true;
+          } else {
             console.error(`No mail configuration found for ID ${mailConfigId}`);
-            continue;
           }
-
-          await sendFailureReasonsMail(
-            email,
-            sourceUrl,
-            searchUrl,
-            failureReasons,
-            mailConfig
-          );
-          console.log(`Email notification sent successfully to ${email}`);
-          alert.LastAlertTime = new Date();
-          alertSent = true;
-        } catch (emailError) {
-          console.error(
-            "Failed to send email notification:",
-            emailError.message
-          );
         }
+      } catch (emailError) {
+        console.error("Failed to send email notification:", emailError.message);
       }
     }
 

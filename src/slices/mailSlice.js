@@ -72,7 +72,7 @@ const mailConfigSlice = createSlice({
         state.loading = false;
         state.mailConfigList = state.mailConfigList.filter(
           (config) => config.id !== action.payload
-        ); // Remove the deleted config
+        );
       })
       .addCase(deleteMailConfig.rejected, (state, action) => {
         state.loading = false;

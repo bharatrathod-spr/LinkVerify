@@ -226,19 +226,19 @@ function shouldSendAlert(lastAlertTime, frequency) {
 
   const now = new Date();
   const lastSent = new Date(lastAlertTime);
+  const diff = now - lastSent;
 
   switch (frequency) {
     case "only_one_time":
       return false;
     case "per_minute":
-      return now - lastSent >= 60 * 1000;
-
+      return diff >= 57 * 1000;
     case "per_hour":
-      return now - lastSent >= 60 * 60 * 1000;
+      return diff >= 59 * 60 * 1000;
     case "per_5_hours":
-      return now - lastSent >= 5 * 60 * 60 * 1000;
+      return diff >= 4.95 * 60 * 60 * 1000;
     case "per_day":
-      return now - lastSent >= 24 * 60 * 60 * 1000;
+      return diff >= 23.9 * 60 * 60 * 1000;
     default:
       return true;
   }

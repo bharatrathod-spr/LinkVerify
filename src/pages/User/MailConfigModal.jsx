@@ -307,7 +307,6 @@ const MailConfigModal = ({ open, handleClose, userId, configId }) => {
       setErrors({ Host: "", Port: "", User: "", Password: "", Mail: "" });
     }
   }, [open, configId, mailConfigList]);
-  
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;

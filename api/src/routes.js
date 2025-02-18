@@ -4,6 +4,7 @@ const profileRoutes = require("./routes/profileRoutes");
 const logsRoutes = require("./routes/logsRoutes");
 const activityRoutes = require("./routes/activityRoutes");
 const alertController = require("./routes/alertRoutes");
+const mailConfigController = require("./routes/mailConfigRoutes");
 const { authenticateToken } = require("./middlewares/authMiddleware");
 
 router.get("/", async (req, res) => {
@@ -24,5 +25,6 @@ router.use("/validation-profiles", profileRoutes);
 router.use("/validation-logs", logsRoutes);
 router.use("/activity", activityRoutes);
 router.use("/alert-subsription", alertController);
+router.use("/mail-config", mailConfigController);
 
 module.exports = router;

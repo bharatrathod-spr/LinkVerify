@@ -1,22 +1,20 @@
 const Alert = require("../models/alertModel");
+const moment = require("moment");
 const {
   updateAlertById,
   getAllAlert,
   createAlertData,
   updateAlertsByUserId,
 } = require("../services/alertService");
-const {
-  sendSlackNotificationToUser,
-  getUserIdByEmail,
-} = require("../Helpers/SlackHelper");
+const { sendSlackNotificationToUser } = require("../Helpers/SlackHelper");
 const AlertSubscription = require("../models/alertModel");
 const sendFailureReasonsMail = require("../Helpers/EmailHelper");
+const MailConfiguration = require("../models/mailConfigModel");
 
 // ===== CREATE ALERT =====
 const createAlert = async (data) => {
   try {
     await createAlertData(data);
-
     return {
       success: true,
       statusCode: 201,
@@ -66,118 +64,29 @@ const getAlerts = async (req, res, next) => {
   }
 };
 
-// ===== SLACK INTEGRATION =====
-
-// const postFailureAlerts = async (email, failureReasons, userId) => {
-//   try {
-// const userAlert = await AlertSubscription.findOne({
-//   UserId: userId,
-//   "Alerts.Type": "slack",
-// });
-
-// if (!userAlert) {
-//   console.log(`No Slack alert found for user ${userId}.`);
-//   return { success: false, message: "Slack alert not found." };
-// }
-
-// const slackAlert = userAlert.Alerts.find((alert) => alert.Type === "slack");
-// if (!slackAlert || !slackAlert.Subscriber) {
-//   console.log(
-//     `User ${email} is not subscribed. Skipping Slack notification.`
-//   );
-//   return { success: false, message: "User not subscribed." };
-// }
-
-//     const messageText = `User: ${email}\nFailure Reasons:\n- ${failureReasons.join(
-//       "\n- "
-//     )}`;
-//     console.log(messageText, "messageText");
-
-//     const slackResult = await sendSlackNotificationToUser(email, messageText);
-//     console.log(slackResult, "slackResult");
-
-//     if (!slackResult.success) {
-//       console.error(
-//         `Failed to send Slack notification for ${email}: ${slackResult.message}`
-//       );
-//       return { success: false, message: slackResult.message };
-//     }
-
-//     return { success: true, message: "Slack notification sent successfully." };
-//   } catch (error) {
-//     console.error("Error sending Slack notification:", error.message);
-//     return { success: false, message: error.message };
-//   }
-// };
-
-//working slack integration api
-
-// const postFailureAlerts = async (
-//   email,
-//   sourceUrl,
-//   searchUrl,
-//   failureReasons,
-//   userId
-// ) => {
-//   try {
-//     const userAlert = await AlertSubscription.findOne({
-//       UserId: userId,
-//       "Alerts.Type": "slack",
-//     });
-
-//     if (!userAlert) {
-//       console.log(`No Slack alert found for user ${userId}.`);
-//       return { success: false, message: "Slack alert not found." };
-//     }
-
-//     const slackAlert = userAlert.Alerts.find((alert) => alert.Type === "slack");
-//     if (!slackAlert || !slackAlert.Subscriber) {
-//       console.log(
-//         `User ${email} is not subscribed. Skipping Slack notification.`
-//       );
-//       return { success: false, message: "User not subscribed." };
-//     }
-
-//     const messageText = `Source URL: ${sourceUrl}\nSearch URL: ${searchUrl}\nFailure Reasons:\n- ${failureReasons.join(
-//       "\n- "
-//     )}`;
-
-//     const slackResult = await sendSlackNotificationToUser(email, messageText);
-
-//     if (!slackResult.success) {
-//       console.error(
-//         `Failed to send Slack notification for source URL ${sourceUrl}: ${slackResult.message}`
-//       );
-//       return { success: false, message: slackResult.message };
-//     }
-
-//     return { success: true, message: "Slack notification sent successfully." };
-//   } catch (error) {
-//     console.error("Error sending Slack notification:", error.message);
-//     return { success: false, message: error.message };
-//   }
-// };
+// ===== SLACK,MAIL INTEGRATION =====
 
 const postFailureAlerts = async (
   email,
   sourceUrl,
   searchUrl,
   failureReasons,
-  userId
+  userId,
+  alertTypes
 ) => {
   try {
     const userAlert = await AlertSubscription.findOne({
       UserId: userId,
-      "Alerts.Type": { $in: ["slack", "email"] },
+      "Alerts.Type": { $in: alertTypes },
     });
 
     if (!userAlert) {
-      console.log(`No alerts found for user ${userId}.`);
       return { success: false, message: "No alerts configured for this user." };
     }
 
-    const slackAlert = userAlert.Alerts.find((alert) => alert.Type === "slack");
-    if (slackAlert?.Subscriber) {
+    let alertSent = false;
+
+    if (alertTypes.includes("slack")) {
       const slackMessage = `Source URL: ${sourceUrl}\nSearch URL: ${searchUrl}\nFailure Reasons:\n- ${failureReasons.join(
         "\n- "
       )}`;
@@ -186,254 +95,52 @@ const postFailureAlerts = async (
         email,
         slackMessage
       );
-      if (!slackResult.success) {
+
+      if (slackResult.success) {
+        alertSent = true;
+      } else {
         console.error(
-          `Failed to send Slack notification for source URL ${sourceUrl}: ${slackResult.message}`
+          `Failed to send Slack notification: ${slackResult.message}`
         );
       }
     }
 
-    const emailAlert = userAlert.Alerts.find((alert) => alert.Type === "email");
-    if (emailAlert?.Subscriber) {
+    if (alertTypes.includes("email")) {
       try {
-        await sendFailureReasonsMail(
-          email,
-          sourceUrl,
-          searchUrl,
-          failureReasons
-        );
-        console.log(`Email notification sent successfully to ${email}.`);
+        const mailConfigId = userAlert.MailConfigurationId;
+        if (!mailConfigId) {
+          console.error(`No mail configuration ID found for user ${userId}`);
+        } else {
+          const mailConfig = await MailConfiguration.findOne({
+            MailConfigurationId: mailConfigId,
+            IsDelete: false,
+          });
+          if (mailConfig) {
+            await sendFailureReasonsMail(
+              email,
+              sourceUrl,
+              searchUrl,
+              failureReasons,
+              mailConfig
+            );
+            alertSent = true;
+          } else {
+            console.error(`No mail configuration found for ID ${mailConfigId}`);
+          }
+        }
       } catch (emailError) {
         console.error("Failed to send email notification:", emailError.message);
       }
+    }
+
+    if (alertSent) {
+      await userAlert.save();
     }
 
     return { success: true, message: "Notifications processed successfully." };
   } catch (error) {
     console.error("Error sending notifications:", error.message);
     return { success: false, message: error.message };
-  }
-};
-
-//Subrscribe or Unsubscribe
-// const postSlackAlerts = async (req, res, next) => {
-//   try {
-//     const { UserId } = req.user;
-//     const { Type } = req.body;
-
-//     if (!UserId || Type !== "slack") {
-//       return res
-//         .status(400)
-//         .json({ success: false, message: "Invalid request data" });
-//     }
-
-//     const userAlert = await AlertSubscription.findOne({
-//       UserId,
-//       "Alerts.Type": "slack",
-//     });
-
-//     if (!userAlert) {
-//       return res
-//         .status(404)
-//         .json({ success: false, message: "Slack alert not found" });
-//     }
-
-//     const currentAlert = userAlert.Alerts.find(
-//       (alert) => alert.Type === "slack"
-//     );
-//     const newSubscriberStatus = !currentAlert.Subscriber;
-
-//     const updatedAlert = await AlertSubscription.findOneAndUpdate(
-//       { UserId, "Alerts.Type": "slack" },
-//       { $set: { "Alerts.$.Subscriber": newSubscriberStatus } },
-//       { new: true }
-//     );
-
-//     if (!updatedAlert) {
-//       return res
-//         .status(500)
-//         .json({ success: false, message: "Failed to update subscription" });
-//     }
-
-//     if (newSubscriberStatus) {
-//       const SlackDetails = {
-//         EmailAddress: req.user.EmailAddress,
-//         MessageText: "Testing Slack notification",
-//       };
-
-//       const slackResult = await sendSlackNotificationToUser(
-//         SlackDetails.EmailAddress,
-//         SlackDetails.MessageText
-//       );
-
-//       if (!slackResult.success) {
-//         return res.status(slackResult.statusCode).json({
-//           success: false,
-//           message: slackResult.message,
-//         });
-//       }
-
-//       return res.status(200).json({
-//         success: true,
-//         message: "Slack Subscription Subscribe Successfully.",
-//       });
-//     }
-
-//     return res.status(200).json({
-//       success: true,
-//       message: "Slack Subscription Unsubscribe Successfully.",
-//     });
-//   } catch (error) {
-//     next(error);
-//   }
-// };
-
-//working api for slack
-// const postSlackAlerts = async (req, res, next) => {
-//   try {
-//     const { UserId } = req.user;
-//     const { Type } = req.body;
-
-//     if (!UserId || Type !== "slack") {
-//       return res
-//         .status(400)
-//         .json({ success: false, message: "Invalid request data" });
-//     }
-
-//     const userAlert = await AlertSubscription.findOne({
-//       UserId,
-//       "Alerts.Type": "slack",
-//     });
-
-//     if (!userAlert) {
-//       return res
-//         .status(404)
-//         .json({ success: false, message: "Slack alert not found" });
-//     }
-
-//     const currentAlert = userAlert.Alerts.find(
-//       (alert) => alert.Type === "slack"
-//     );
-//     const newSubscriberStatus = !currentAlert.Subscriber;
-
-//     const updatedAlert = await AlertSubscription.findOneAndUpdate(
-//       { UserId, "Alerts.Type": "slack" },
-//       { $set: { "Alerts.$.Subscriber": newSubscriberStatus } },
-//       { new: true }
-//     );
-
-//     if (!updatedAlert) {
-//       return res
-//         .status(500)
-//         .json({ success: false, message: "Failed to update subscription" });
-//     }
-
-//     if (newSubscriberStatus) {
-//       const slackResult = await sendSlackNotificationToUser(
-//         req.user.EmailAddress,
-//         "You have successfully subscribed to Slack alerts."
-//       );
-
-//       if (!slackResult.success) {
-//         return res.status(slackResult.statusCode).json({
-//           success: false,
-//           message: slackResult.message,
-//         });
-//       }
-
-//       return res.status(200).json({
-//         success: true,
-//         message: "Slack Subscription Subscribe Successfully.",
-//       });
-//     }
-
-//     return res.status(200).json({
-//       success: true,
-//       message: "Slack Subscription Unsubscribe Successfully.",
-//     });
-//   } catch (error) {
-//     next(error);
-//   }
-// };
-
-//working api for both slack and email
-
-const postSlackAlerts = async (req, res, next) => {
-  try {
-    const { UserId } = req.user;
-    const { Type } = req.body;
-
-    if (!UserId || !["slack", "email"].includes(Type)) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Invalid request data" });
-    }
-
-    const userAlert = await AlertSubscription.findOne({
-      UserId,
-      "Alerts.Type": Type,
-    });
-
-    if (!userAlert) {
-      return res.status(404).json({
-        success: false,
-        message: `${
-          Type.charAt(0).toUpperCase() + Type.slice(1)
-        } alert not found`,
-      });
-    }
-
-    const currentAlert = userAlert.Alerts.find((alert) => alert.Type === Type);
-
-    if (Type === "slack") {
-      const slackIntegrationCheck = await getUserIdByEmail(
-        req.user.EmailAddress
-      );
-
-      if (!slackIntegrationCheck.success) {
-        return res.status(slackIntegrationCheck.statusCode).json({
-          success: false,
-          message: slackIntegrationCheck.message,
-        });
-      }
-    }
-
-    const newSubscriberStatus = !currentAlert.Subscriber;
-
-    const updatedAlert = await AlertSubscription.findOneAndUpdate(
-      { UserId, "Alerts.Type": Type },
-      { $set: { "Alerts.$.Subscriber": newSubscriberStatus } },
-      { new: true }
-    );
-
-    if (!updatedAlert) {
-      return res
-        .status(500)
-        .json({ success: false, message: "Failed to update subscription" });
-    }
-
-    if (Type === "slack" && newSubscriberStatus) {
-      const slackResult = await sendSlackNotificationToUser(
-        req.user.EmailAddress,
-        "You have successfully subscribed to Slack alerts."
-      );
-
-      if (!slackResult.success) {
-        return res.status(slackResult.statusCode).json({
-          success: false,
-          message: slackResult.message,
-        });
-      }
-    }
-
-    return res.status(200).json({
-      success: true,
-      message: `${Type.charAt(0).toUpperCase() + Type.slice(1)} Subscription ${
-        newSubscriberStatus ? "Subscribe" : "Unsubscribe"
-      } Successfully.`,
-    });
-  } catch (error) {
-    next(error);
   }
 };
 
@@ -459,10 +166,132 @@ const updateAlerts = async (req, res, next) => {
   }
 };
 
+const addMailConfiguration = async (req, res) => {
+  const { MailConfigurationId } = req.body;
+
+  const mailConfigId =
+    MailConfigurationId?.selectedConfigId || MailConfigurationId;
+
+  if (!MailConfigurationId) {
+    return res
+      .status(400)
+      .json({ message: "Mail Configuration ID is required" });
+  }
+
+  try {
+    const UserId = req.user.UserId;
+
+    const updatedAlert = await Alert.findOneAndUpdate(
+      { UserId },
+      { $set: { MailConfigurationId: mailConfigId } },
+      { new: true, upsert: true }
+    );
+
+    return res.status(200).json({
+      message: "Mail configuration updated successfully",
+      alert: updatedAlert,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      message: "Error updating the mail configuration: " + error.message,
+    });
+  }
+};
+
+const toggleSubscription = async (req, res, next) => {
+  try {
+    const { UserId } = req.user;
+    const { Type } = req.body;
+
+    if (!UserId || !["slack", "email"].includes(Type)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid request data",
+      });
+    }
+
+    const userAlert = await AlertSubscription.findOne({
+      UserId,
+      "Alerts.Type": Type,
+    });
+
+    if (!userAlert) {
+      return res.status(404).json({
+        success: false,
+        message: `${
+          Type.charAt(0).toUpperCase() + Type.slice(1)
+        } alert not found`,
+      });
+    }
+
+    const currentAlert = userAlert.Alerts.find((alert) => alert.Type === Type);
+    const newSubscriberStatus = !currentAlert.Subscriber;
+
+    const updatedAlert = await AlertSubscription.findOneAndUpdate(
+      { UserId, "Alerts.Type": Type },
+      { $set: { "Alerts.$.Subscriber": newSubscriberStatus } },
+      { new: true }
+    );
+
+    if (!updatedAlert) {
+      return res.status(500).json({
+        success: false,
+        message: "Failed to update subscription",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: `${Type.charAt(0).toUpperCase() + Type.slice(1)} Subscription ${
+        newSubscriberStatus ? "Subscribed" : "Unsubscribed"
+      } Successfully.`,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const setAlertFrequency = async (req, res, next) => {
+  try {
+    const { UserId } = req.user;
+    const { Type, Frequency } = req.body;
+
+    if (!UserId || !["slack", "email"].includes(Type) || !Frequency) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid request data",
+      });
+    }
+
+    const updatedAlert = await AlertSubscription.findOneAndUpdate(
+      { UserId, "Alerts.Type": Type },
+      { $set: { "Alerts.$.Frequency": Frequency } },
+      { new: true }
+    );
+
+    if (!updatedAlert) {
+      return res.status(500).json({
+        success: false,
+        message: "Failed to update frequency",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: `Frequency updated to ${Frequency} for ${Type}.`,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   createAlert,
   getAlerts,
   updateAlerts,
-  postSlackAlerts,
   postFailureAlerts,
+  addMailConfiguration,
+  setAlertFrequency,
+  toggleSubscription,
 };

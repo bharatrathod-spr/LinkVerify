@@ -11,27 +11,25 @@ import {
   TableCell,
   TableBody,
   Button,
-  Modal,
 } from "@mui/material";
 import { Form, Formik } from "formik";
 import useFetchUserAlerts from "../../hooks/useSetting";
 import { toast } from "react-toastify";
+import MailSetModal from "./MailSetModal";
+import {
+  toggleSubscription,
+  setAlertFrequency,
+} from "../../actions/settingActions";
+import { useDispatch } from "react-redux";
 
 const Settings = () => {
-  const { alerts, loading, error, handleUpdate, handleSlackAlert } =
-    useFetchUserAlerts();
+  const dispatch = useDispatch();
+  const { alerts, loading, handleUpdate } = useFetchUserAlerts();
 
   const [subscriptionState, setSubscriptionState] = useState({});
-
-  const [open, setOpen] = useState(false);
-  const [currentKey, setCurrentKey] = useState("");
-
-  const toggleSubscription = (key) => {
-    setSubscriptionState((prev) => ({
-      ...prev,
-      [key]: !prev[key],
-    }));
-  };
+  const [frequencyState, setFrequencyState] = useState({});
+  const [selectedMailConfig, setSelectedMailConfig] = useState(null);
+  const [openMailModal, setOpenMailModal] = useState(false);
 
   const alertMap = {
     Slack: "slack",
@@ -39,31 +37,45 @@ const Settings = () => {
     Sms: "sms",
   };
 
-  // const handleSubscribeClick = (key) => {
-  //   if (alertMap[key]) {
-  //     handleSlackAlert(alertMap[key]);
-  //   }
+  useEffect(() => {
+    if (alerts) {
+      const initialSubscriptionState = Object.keys(alerts).reduce(
+        (acc, key) => {
+          acc[key] = alerts[key]?.Subscriber || false;
+          return acc;
+        },
+        {}
+      );
+      setSubscriptionState(initialSubscriptionState);
 
-  //   setSubscriptionState((prev) => ({
-  //     ...prev,
-  //     [key]: !prev[key],
-  //   }));
-  // };
+      const initialFrequencyState = Object.keys(alerts).reduce((acc, key) => {
+        acc[key] = alerts[key]?.Frequency || "only_one_time";
+        return acc;
+      }, {});
+      setFrequencyState(initialFrequencyState);
+
+      if (alerts.Email?.MailConfigurationId) {
+        setSelectedMailConfig(alerts.Email.MailConfigurationId);
+      }
+    }
+  }, [alerts]);
 
   const handleSubscribeClick = async (key) => {
     if (alertMap[key]) {
       try {
-        const response = await handleSlackAlert(alertMap[key]);
+        setSubscriptionState((prev) => ({ ...prev, [key]: !prev[key] }));
 
-        toast.success(
-          response.message || `${key} subscription updated successfully.`
-        );
+        await dispatch(toggleSubscription(alertMap[key]));
 
-        // Update state only on success
-        setSubscriptionState((prev) => ({
-          ...prev,
-          [key]: !prev[key],
-        }));
+        toast.success(`${key} subscription updated successfully!`);
+
+        if (key === "Email" && !subscriptionState[key]) {
+          setTimeout(() => {
+            setOpenMailModal(true);
+          }, 500);
+        } else if (key === "Email" && subscriptionState[key]) {
+          setOpenMailModal(false);
+        }
       } catch (error) {
         toast.error(
           error || `Failed to update ${key} subscription. Please try again.`
@@ -72,36 +84,27 @@ const Settings = () => {
     }
   };
 
-  const handleModalClose = () => {
-    setOpen(false);
-    setCurrentKey("");
-  };
+  const handleFrequencyChange = async (key, newFrequency) => {
+    try {
+      setFrequencyState((prev) => ({ ...prev, [key]: newFrequency }));
 
-  const handleModalJoinNow = () => {
-    toggleSubscription(currentKey);
-    handleModalClose();
-  };
+      await dispatch(
+        setAlertFrequency({ type: alertMap[key], frequency: newFrequency })
+      );
 
-  const handleFormSubmit = (values) => {
-    handleUpdate(values);
-  };
-
-  useEffect(() => {
-    if (alerts) {
-      const initialState = Object.keys(alerts).reduce((acc, key) => {
-        acc[key] = alerts[key]?.Subscriber || false;
-        return acc;
-      }, {});
-      setSubscriptionState(initialState);
+      toast.success(`Frequency updated to ${newFrequency} for ${key}.`);
+    } catch (error) {
+      toast.error(
+        error || `Failed to update frequency for ${key}. Please try again.`
+      );
     }
-  }, [alerts]);
+  };
 
   return (
     <Box sx={{ padding: 4 }}>
-      <Typography variant="h5" gutterBottom>
-        Settings
+      <Typography variant="h5" color="primary" sx={{ fontWeight: "bold" }}>
+        Alert Subscriptions
       </Typography>
-
       {loading ? (
         <Box
           sx={{
@@ -118,25 +121,23 @@ const Settings = () => {
           elevation={3}
           sx={{ padding: 2, marginTop: 2, position: "relative" }}
         >
-          <Formik initialValues={alerts} onSubmit={handleFormSubmit}>
-            {({ values, handleChange }) => (
+          <Formik initialValues={alerts} onSubmit={handleUpdate}>
+            {() => (
               <Form>
                 <TableContainer component={Paper}>
-                  <Typography variant="h6" sx={{ padding: "16px" }}>
-                    Alert Subscriptions
-                  </Typography>
                   <Table>
                     <TableHead>
                       <TableRow>
                         <TableCell>Subscriber Preferences</TableCell>
                         <TableCell align="center"></TableCell>
+                        <TableCell align="center">Frequency</TableCell>
+                        <TableCell align="center">Mail Configuration</TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
                       {Object.keys(alerts).map((key, index) => (
                         <TableRow key={index}>
                           <TableCell>{key}</TableCell>
-                          {console.log(key)}
                           <TableCell align="center">
                             <Button
                               variant={
@@ -154,25 +155,65 @@ const Settings = () => {
                                 : "Subscribe"}
                             </Button>
                           </TableCell>
+                          <TableCell align="center">
+                            {subscriptionState[key] ? (
+                              <select
+                                value={frequencyState[key] || "only_one_time"}
+                                onChange={(e) =>
+                                  handleFrequencyChange(key, e.target.value)
+                                }
+                                style={{
+                                  padding: "8px 12px",
+                                  fontSize: "14px",
+                                  borderRadius: "4px",
+                                  border: "1px solid #ccc",
+                                  backgroundColor: "#fff",
+                                  cursor: "pointer",
+                                }}
+                              >
+                                <option value="per_minute">Per Minute</option>
+                                <option value="only_one_time">Once</option>
+                                <option value="per_hour">Hourly</option>
+                                <option value="per_5_hours">
+                                  Every 5 Hours
+                                </option>
+                                <option value="per_day">Daily</option>
+                              </select>
+                            ) : (
+                              <Typography variant="body2" color="error">
+                                Frequency not set
+                              </Typography>
+                            )}
+                          </TableCell>
+                          <TableCell align="center">
+                            {key === "Email" && (
+                              <Button
+                                variant="outlined"
+                                color="primary"
+                                onClick={() => setOpenMailModal(true)}
+                                disabled={!subscriptionState[key]}
+                              >
+                                Select Mail Configuration
+                              </Button>
+                            )}
+                          </TableCell>
                         </TableRow>
                       ))}
                     </TableBody>
                   </Table>
                 </TableContainer>
-
-                {/* <Button
-                  type="submit"
-                  variant="contained"
-                  color="primary"
-                  sx={{ marginTop: 3 }}
-                >
-                  Update Settings
-                </Button> */}
               </Form>
             )}
           </Formik>
         </Paper>
       )}
+
+      <MailSetModal
+        open={openMailModal}
+        handleClose={() => setOpenMailModal(false)}
+        selectedMailConfig={selectedMailConfig}
+        setSelectedMailConfig={setSelectedMailConfig}
+      />
     </Box>
   );
 };

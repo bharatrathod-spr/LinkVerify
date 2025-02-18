@@ -10,6 +10,7 @@ const cron = require("node-cron");
 const Users = require("../models/userModel");
 const Profiles = require("../models/profileModel");
 const ProfileCount = require("../models/profileCountModel");
+const AlertSubscription = require("../models/alertModel");
 
 // Controllers
 const { createLog } = require("../controllers/logsController");
@@ -48,7 +49,8 @@ Time: ${timestamp}
   `;
   logger.info(formattedMessage);
 }
-// Function to update profile counts
+
+// Update Profile Count
 async function updateProfileCount(
   UserId,
   ValidationProfileId,
@@ -72,7 +74,6 @@ async function updateProfileCount(
       profileCount.FailureCount = (profileCount.FailureCount || 0) + 1;
     }
     profileCount.ResponseTime = adjustedResponseTime;
-
     await profileCount.save();
   } else {
     const newProfileCount = new ProfileCount({
@@ -88,33 +89,59 @@ async function updateProfileCount(
   }
 }
 
-// Function to validate SEO and links
+// SEO and Link Validation
 async function seoAndLinkValidate(url, searchUrl, UserId, ValidationProfileId) {
   const startTime = Date.now();
-
   let success = true;
   let failureReasons = [];
-  let hasNoFollowMeta = false;
-  let hasNoIndexMeta = false;
 
   try {
-    const response = await axios.get(url);
-    const $ = cheerio.load(response.data);
+    console.log(`Validating URL: ${url} | Searching for: ${searchUrl}`);
+    const response = await axios.get(url, {
+      headers: {
+        "User-Agent":
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.0.0 Safari/537.36",
+        "Accept-Language": "en-US,en;q=0.9",
+        Accept:
+          "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8",
+      },
+      timeout: 10000,
+      maxRedirects: 5,
+    });
 
-    const metaRobots = $('meta[name="robots"]').attr("content");
-    if (metaRobots) {
-      hasNoFollowMeta = metaRobots.includes("nofollow");
-      hasNoIndexMeta = metaRobots.includes("noindex");
-    } else {
-      failureReasons.push("Missing meta robots tag");
+    console.log(`Response Status: ${response.status}`);
+
+    if (response.status !== 200) {
+      failureReasons.push(`HTTP error: ${response.status}`);
       success = false;
     }
 
+    const $ = cheerio.load(response.data);
+
+    const metaRobots = $('meta[name="robots"]').attr("content") || "not set";
+    console.log("Meta Robots:", metaRobots);
+
+    const hasNoFollowMeta = metaRobots
+      ? metaRobots.includes("nofollow")
+      : false;
+    const hasNoIndexMeta = metaRobots ? metaRobots.includes("noindex") : false;
+
+    const normalizeUrl = (inputUrl) => {
+      return new URL(inputUrl, url)
+        .toString()
+        .replace(/\/$/, "")
+        .replace("http://", "https://");
+    };
+
     let linkExists = false;
-    $("a").each((index, element) => {
+    $("a").each((_, element) => {
       const href = $(element).attr("href");
-      if (href && href === searchUrl) {
-        linkExists = true;
+      if (href) {
+        const absoluteUrl = normalizeUrl(href);
+        const expectedUrl = normalizeUrl(searchUrl);
+        if (absoluteUrl === expectedUrl) {
+          linkExists = true;
+        }
       }
     });
 
@@ -126,20 +153,21 @@ async function seoAndLinkValidate(url, searchUrl, UserId, ValidationProfileId) {
     const robotsTxtUrl = new URL("/robots.txt", url).toString();
     try {
       const robotsTxtResponse = await axios.get(robotsTxtUrl);
+      console.log(`Fetched robots.txt from: ${robotsTxtUrl}`);
+      console.log("robots.txt Content:", robotsTxtResponse.data);
       const robots = robotsParser(robotsTxtUrl, robotsTxtResponse.data);
-      const canCrawl = robots.isAllowed(url);
-      if (!canCrawl) {
+      if (!robots.isAllowed(url)) {
         failureReasons.push("URL is disallowed by robots.txt");
         success = false;
       }
-    } catch {
+    } catch (err) {
+      console.log("Robots.txt not found or inaccessible.");
       failureReasons.push("Robots.txt not found or inaccessible.");
     }
 
-    const endTime = Date.now();
-    const responseTime = endTime - startTime;
+    const responseTime = Date.now() - startTime;
 
-    // Log validation result
+    // Log Validation Result
     createLog({
       UserId,
       ValidationProfileId,
@@ -154,7 +182,7 @@ async function seoAndLinkValidate(url, searchUrl, UserId, ValidationProfileId) {
       LastSuccessAt: success ? new Date().toISOString() : null,
     });
 
-    // Update ProfileCount
+    // Update Profile Count
     await updateProfileCount(
       UserId,
       ValidationProfileId,
@@ -168,7 +196,7 @@ async function seoAndLinkValidate(url, searchUrl, UserId, ValidationProfileId) {
       failureReasons,
     };
   } catch (error) {
-    console.error("Error fetching or validating:", error.message);
+    console.error("Validation Error:", error.message);
 
     const responseTime = Date.now() - startTime;
 
@@ -178,15 +206,11 @@ async function seoAndLinkValidate(url, searchUrl, UserId, ValidationProfileId) {
       IsSuccess: false,
       FailureReasons: [error.message],
       ResponseTime: responseTime,
-      MetaRobotsTags: {
-        Follow: false,
-        Index: false,
-      },
+      MetaRobotsTags: { Follow: false, Index: false },
       LastErrorAt: new Date().toISOString(),
       LastSuccessAt: null,
     });
 
-    // Update ProfileCount
     await updateProfileCount(UserId, ValidationProfileId, false, responseTime);
 
     return {
@@ -194,6 +218,29 @@ async function seoAndLinkValidate(url, searchUrl, UserId, ValidationProfileId) {
       LastSuccessAt: null,
       failureReasons: [error.message],
     };
+  }
+}
+
+function shouldSendAlert(lastAlertTime, frequency) {
+  if (!lastAlertTime) return true;
+
+  const now = new Date();
+  const lastSent = new Date(lastAlertTime);
+  const diff = now - lastSent;
+
+  switch (frequency) {
+    case "only_one_time":
+      return false;
+    case "per_minute":
+      return diff >= 57 * 1000;
+    case "per_hour":
+      return diff >= 59 * 60 * 1000;
+    case "per_5_hours":
+      return diff >= 4.95 * 60 * 60 * 1000;
+    case "per_day":
+      return diff >= 23.9 * 60 * 60 * 1000;
+    default:
+      return true;
   }
 }
 
@@ -206,22 +253,17 @@ const cronjob = async () => {
       IsActive: true,
       Role: "user",
     });
-    log(`Found ${users.length} active users to process.`);
-    for (const user of users) {
-      const validateTime = moment().utc().startOf("minute").toDate();
 
+    log(`Found ${users.length} active users to process.`);
+
+    for (const user of users) {
       const profiles = await Profiles.find({
         UserId: user.UserId,
         IsDelete: false,
-        ValidateAt: { $lte: validateTime },
       });
 
-      log(
-        `Found ${profiles.length} validation profiles for user ${user.UserId}.`
-      );
-
       for (const profile of profiles) {
-        const { SourceLink, SearchLink, CronExpression } = profile;
+        const { SourceLink, SearchLink } = profile;
 
         const { LastSuccessAt, LastErrorAt, failureReasons } =
           await seoAndLinkValidate(
@@ -231,30 +273,56 @@ const cronjob = async () => {
             profile.ValidationProfileId
           );
 
-        if (failureReasons && failureReasons.length > 0) {
-          const slackResponse = await postFailureAlerts(
-            user.EmailAddress,
-            SourceLink,
-            SearchLink,
-            failureReasons,
-            user.UserId
-          );
-          if (!slackResponse.success) {
-            log(
-              `Slack notification failed for ${user.EmailAddress}: ${slackResponse.message}`
-            );
+        if (failureReasons.length > 0) {
+          const alertSettings = await AlertSubscription.findOne({
+            UserId: user.UserId,
+          });
+
+          if (alertSettings && Array.isArray(alertSettings.Alerts)) {
+            const alertTypes = [];
+
+            for (const alert of alertSettings.Alerts) {
+              if (alert.Subscriber) {
+                const canSendAlert = shouldSendAlert(
+                  alert.LastAlertTime,
+                  alert.Frequency
+                );
+                if (canSendAlert && !alertTypes.includes(alert.Type)) {
+                  alertTypes.push(alert.Type);
+                }
+              }
+            }
+
+            if (alertTypes.length > 0) {
+              const alertResponse = await postFailureAlerts(
+                user.EmailAddress,
+                SourceLink,
+                SearchLink,
+                failureReasons,
+                user.UserId,
+                alertTypes
+              );
+
+              if (!alertResponse.success) {
+                log(
+                  `Alert failed for ${user.EmailAddress}: ${alertResponse.message}`
+                );
+              } else {
+                for (const alert of alertSettings.Alerts) {
+                  if (alertTypes.includes(alert.Type)) {
+                    alert.LastAlertTime = new Date();
+                  }
+                }
+                await alertSettings.save();
+              }
+            }
+          } else {
+            log(`No alerts found for user ${user.EmailAddress}.`);
           }
         }
 
-        const cronParts = CronExpression.split(" ");
-        const timeValue = parseInt(cronParts[0]);
-        const timeUnit = cronParts[1];
-
-        let newDate = moment().add(timeValue, timeUnit).utc().startOf("minute");
-        profile.ValidateAt = newDate.toDate();
         profile.LastErrorAt = LastErrorAt;
         profile.LastSuccessAt = LastSuccessAt;
-
         await profile.save();
       }
     }
@@ -265,7 +333,7 @@ const cronjob = async () => {
   }
 };
 
-// cron.schedule("*/1 * * * * ", () => {
+// cron.schedule("*/1 * * * *", () => {
 //   cronjob();
 // });
 

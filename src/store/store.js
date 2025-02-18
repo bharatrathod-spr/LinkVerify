@@ -5,6 +5,7 @@ import profileSlice from "../slices/profileSlice";
 import logsSlice from "../slices/logsSlice";
 import activitySlice from "../slices/activitySlice";
 import settingSlice from "../slices/settingSlice";
+import mailconfigSlice from "../slices/mailSlice";
 
 const store = configureStore({
   reducer: {
@@ -14,6 +15,7 @@ const store = configureStore({
     logs: logsSlice,
     activity: activitySlice,
     setting: settingSlice,
+    mailconfig: mailconfigSlice,
   },
 });
 

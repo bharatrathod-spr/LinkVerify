@@ -6,6 +6,7 @@ import {
   Typography,
   Grid,
   Button,
+  Divider,
 } from "@mui/material";
 import { Link, useNavigate } from "react-router-dom";
 import { LoginForm } from "../../config/Forms/Forms";
@@ -24,7 +25,7 @@ const Login = () => {
         logout();
       } else {
         setTimeout(() => {
-          navigate(`/${user?.Role}/`);
+          navigate(`/${user?.Role}/dashboard`);
         }, 2000);
       }
     }
@@ -62,6 +63,7 @@ const Login = () => {
             }}
           />
         </Box>
+        <Divider orientation="vertical" flexItem />
 
         <Box sx={{ flex: 1, padding: 4 }}>
           <CardContent>

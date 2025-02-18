@@ -20,6 +20,8 @@ import {
   LogoutRounded,
   LockRounded,
   DashboardRounded,
+  MailRounded,
+  Notifications,
 } from "@mui/icons-material";
 
 import useMobileDrawer from "../../hooks/useMobileDrawer";
@@ -54,7 +56,7 @@ const Navbar = ({ role }) => {
     <StyledAppBar
       position="fixed"
       sx={{
-        paddingLeft: isMobile ? "30px" : "240px",
+        paddingRight: isMobile ? "30px" : "240px",
       }}
     >
       <Toolbar>
@@ -62,13 +64,11 @@ const Navbar = ({ role }) => {
           Welcome to LinkVerify
         </Typography>
 
-        <IconButton color="inherit">
-          <Badge badgeContent={3} color="error">
-            <NotificationsRounded />
-          </Badge>
-        </IconButton>
-
-        <IconButton color="inherit" onClick={handleOpenMenu}>
+        <IconButton
+          color="inherit"
+          onClick={handleOpenMenu}
+          sx={{ display: "flex", alignItems: "center" }}
+        >
           <Avatar
             sx={{
               width: 36,
@@ -76,14 +76,20 @@ const Navbar = ({ role }) => {
               backgroundColor: "#ffffff",
               color: "#6e8efb",
               fontWeight: "bold",
+              marginRight: 1,
             }}
           >
             {user?.FirstName?.charAt(0).toUpperCase()}
             {user?.LastName?.charAt(0).toUpperCase()}
           </Avatar>
+          <Box sx={{ display: "flex", flexDirection: "column" }}>
+            <Typography variant="body1" sx={{ fontWeight: "bold" }}>
+              {user?.FirstName} {user?.LastName}
+            </Typography>
+          </Box>
         </IconButton>
 
-        <StyledMenu
+        {/* <StyledMenu
           anchorEl={anchorEl}
           open={Boolean(anchorEl)}
           onClose={handleCloseMenu}
@@ -116,18 +122,26 @@ const Navbar = ({ role }) => {
               <DashboardRounded sx={{ marginRight: 1 }} /> My Activities
             </MenuItem>,
             <MenuItem
-              key="settings"
+              key="AlertSubscriptions"
               component={Link}
-              to="/user/settings"
+              to="/user/AlertSubscriptions"
               onClick={handleCloseMenu}
             >
-              <SettingsRounded sx={{ marginRight: 1 }} /> Settings
+              <Notifications sx={{ marginRight: 1 }} /> Alert Subscriptions
+            </MenuItem>,
+            <MenuItem
+              key="mail-configuration"
+              component={Link}
+              to="/user/mail-configuration"
+              onClick={handleCloseMenu}
+            >
+              <MailRounded sx={{ marginRight: 1 }} /> Mail Configuration
             </MenuItem>,
           ]}
           <MenuItem onClick={logout}>
             <LogoutRounded sx={{ marginRight: 1, color: "red" }} /> Logout
           </MenuItem>
-        </StyledMenu>
+        </StyledMenu> */}
       </Toolbar>
     </StyledAppBar>
   );

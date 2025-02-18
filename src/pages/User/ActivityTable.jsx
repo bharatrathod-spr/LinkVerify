@@ -39,7 +39,7 @@ const ActivityTable = () => {
           alignItems: "start",
         }}
       >
-        <Typography variant="h5" gutterBottom>
+        <Typography variant="h5" color="primary" sx={{ fontWeight: "bold" }}>
           My Activities
         </Typography>
       </Box>

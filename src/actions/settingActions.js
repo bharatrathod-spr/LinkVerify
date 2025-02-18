@@ -48,7 +48,7 @@ export const updateUserAlerts = createAsyncThunk(
       const payload = { Alerts: transformedAlerts };
 
       const response = await axiosInstance.patch(`/alert-subsription`, payload);
-      toast.success(response.data.message || "Setting updated successfully");
+      toast.success(response.data.message || "Setting updated successfully!");
 
       return alert;
     } catch (error) {
@@ -57,47 +57,56 @@ export const updateUserAlerts = createAsyncThunk(
   }
 );
 
-// export const postUserSlackAlerts = createAsyncThunk(
-//   "setting/postUserSlackAlerts",
-//   async (type, { rejectWithValue }) => {
-//     try {
-//       // Make the API call to post the Slack alert
-//       const response = await axiosInstance.post("/alert-subsription", type);
-
-//       if (response.data.success) {
-//         toast.success(
-//           response.data.message || "Slack notification sent successfully"
-//         );
-//       } else {
-//         toast.error(
-//           response.data.message || "Failed to send Slack notification"
-//         );
-//       }
-
-//       return response.data; // You can return the response data or transformed data here
-//     } catch (error) {
-//       return rejectAction(error, rejectWithValue);
-//     }
-//   }
-// );
-
-export const postUserSlackAlerts = createAsyncThunk(
-  "setting/postUserSlackAlerts",
-  async (type, { rejectWithValue }) => {
+export const updateMailConfig = createAsyncThunk(
+  "mailConfig/update",
+  async (selectedConfigId, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.post("/alert-subsription", type);
-
-      if (!response.data.success) {
-        return rejectWithValue(
-          response.data.message || "Failed to send notification."
-        );
-      }
-
+      const response = await axiosInstance.post(
+        "/alert-subsription/addMailConfiguration",
+        {
+          MailConfigurationId: selectedConfigId,
+        }
+      );
       return response.data;
     } catch (error) {
-      return rejectWithValue(
-        error.response?.data?.message || "An error occurred."
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
+
+export const toggleSubscription = createAsyncThunk(
+  "setting/toggleSubscription",
+  async (type, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.patch(
+        "/alert-subsription/toggleSubscription",
+        {
+          Type: type,
+        }
       );
+
+      return { type, subscriber: response.data.success };
+    } catch (error) {
+      return rejectAction(error, rejectWithValue);
+    }
+  }
+);
+
+export const setAlertFrequency = createAsyncThunk(
+  "setting/setAlertFrequency",
+  async ({ type, frequency }, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.patch(
+        "/alert-subsription/setAlertFrequency",
+        {
+          Type: type,
+          Frequency: frequency,
+        }
+      );
+
+      return { type, frequency };
+    } catch (error) {
+      return rejectAction(error, rejectWithValue);
     }
   }
 );

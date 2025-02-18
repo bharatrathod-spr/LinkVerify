@@ -1,10 +1,10 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Typography, Box, Paper } from "@mui/material";
+import { Typography, Box, Paper, Stack } from "@mui/material";
 import TableLayout from "../../components/Table/TableLayout";
 import moment from "moment";
 import { useLogs } from "../../hooks/useLogs";
 import Loader from "../../components/Common/Loader";
-
+import HistoryIcon from "@mui/icons-material/History";
 const headerData = [
   { field: "SourceLink", label: "Source Link", width: "18%", isOverflow: true },
   { field: "SearchLink", label: "Search Link", width: "18%", isOverflow: true },
@@ -68,12 +68,20 @@ const LogsTable = () => {
         sx={{
           display: "flex",
           justifyContent: "space-between",
-          alignItems: "start",
+          alignItems: "center",
+          paddingBottom: 1,
         }}
       >
-        <Typography variant="h5" gutterBottom>
-          Audit Logs
-        </Typography>
+        <Stack direction="row" spacing={1} alignItems="center">
+          <Typography
+            variant="h5"
+            gutterBottom
+            color="primary"
+            sx={{ fontWeight: "bold" }}
+          >
+            Audit Logs
+          </Typography>
+        </Stack>
       </Box>
 
       {loading && !logs ? (

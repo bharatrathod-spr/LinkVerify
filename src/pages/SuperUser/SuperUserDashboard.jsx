@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, Typography, Grid, Card, CardContent } from "@mui/material";
+import { Box, Typography, Grid, Card, CardContent, Stack } from "@mui/material";
 import { useDashboard } from "../../hooks/useDashboard";
 import Loader from "../../components/Common/Loader";
 import {
@@ -15,6 +15,8 @@ import {
 import SuperUserCard from "../../components/Cards/SuperUserCard";
 import { People, PersonOff } from "@mui/icons-material";
 import NoDataImage from "../../assets/svg/NoData.png";
+import WidgetsRounded from "@mui/icons-material/WidgetsRounded";
+
 
 const SuperUserDashboard = () => {
   const { graphdata, loading, error, userCount } = useDashboard();
@@ -36,12 +38,16 @@ const SuperUserDashboard = () => {
         sx={{
           display: "flex",
           justifyContent: "space-between",
-          alignItems: "start",
+          alignItems: "center",
+          paddingBottom: 1,
         }}
       >
-        <Typography variant="h5" gutterBottom>
-          Dashboard
-        </Typography>
+        <Stack direction="row" spacing={1} alignItems="center">
+          <WidgetsRounded sx={{ color: "#1976d2", fontSize: 28 }} />
+          <Typography variant="h5" gutterBottom>
+            Dashboard
+          </Typography>
+        </Stack>
       </Box>
 
       {loading ? (

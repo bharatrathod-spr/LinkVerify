@@ -37,7 +37,7 @@ const User = () => {
         component="main"
         className="user-main"
         style={{
-          paddingLeft: isMobile ? "0px" : "240px",
+          paddingRight: isMobile ? "0px" : "240px",
         }}
       >
         <Outlet />

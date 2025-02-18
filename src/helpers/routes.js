@@ -5,12 +5,8 @@ import User from "../components/Layouts/User";
 // pages
 import pages from "./pages";
 
-import {
-  AlignHorizontalLeftRounded,
-  BarChartRounded,
-  WidgetsRounded,
-  PeopleRounded,
-} from "./icons";
+import { WidgetsRounded, PeopleRounded } from "./icons";
+import { Assessment, Event } from "@mui/icons-material";
 
 const routes = [
   {
@@ -43,7 +39,7 @@ const routes = [
     pages: [
       {
         title: "Dashboard",
-        path: "",
+        path: "dashboard",
         component: pages.UserDashboard,
         icon: WidgetsRounded,
         isDisplay: true,
@@ -53,9 +49,9 @@ const routes = [
       },
       {
         title: "URL Audit Profile",
-        path: "URLAuditProfile",
+        path: "url-audit-profile",
         component: pages.ProfileTable,
-        icon: BarChartRounded,
+        icon: Assessment,
         isDisplay: true,
         description:
           "View and manage your website's URL Audit Profiles. Track and analyze SEO link data effortlessly.",
@@ -64,9 +60,9 @@ const routes = [
       },
       {
         title: "Audit Logs",
-        path: "AuditLogs",
+        path: "audit-logs",
         component: pages.LogsTable,
-        icon: AlignHorizontalLeftRounded,
+        icon: Event,
         isDisplay: true,
         description:
           "Access detailed logs of your website's link validations and SEO performance metrics.",
@@ -82,15 +78,6 @@ const routes = [
         keywords:
           "profile details, validation details, SEO analysis, link optimization",
       },
-      // {
-      //   title: "Add Validation Profile",
-      //   path: "add-validation-profile",
-      //   component: pages.ValidationProfileForm,
-      //   description:
-      //     "Create and customize a new validation profile to track your website's SEO link performance.",
-      //   keywords:
-      //     "add profile, create validation profile, SEO tools, link management",
-      // },
       {
         title: "User Profile",
         path: "profile",
@@ -117,13 +104,22 @@ const routes = [
         keywords: "user activities, activity logs, tracking, SEO tools",
       },
       {
-        title: "Settings",
-        path: "settings",
+        title: "Alert Subscriptions",
+        path: "AlertSubscriptions",
         component: pages.Setting,
         description:
           "Configure your account and application settings for a personalized experience.",
         keywords:
           "settings, user settings, SEO customization, account configuration",
+      },
+      {
+        title: "Mail Configuration",
+        path: "mail-configuration",
+        component: pages.MailConfiguration,
+        description:
+          "Configure your account and application settings for a personalized experience.",
+        keywords:
+          "MailConfiguration, user settings, mail configuration, SMTP, email setup",
       },
     ],
   },

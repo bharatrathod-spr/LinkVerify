@@ -15,7 +15,7 @@ const SignUp = () => {
   useEffect(() => {
     if (token && user) {
       setTimeout(() => {
-        navigate(`/user/`);
+        navigate(`/user/dashboard`);
       }, 2000);
     }
   }, [token, user]);
@@ -27,7 +27,7 @@ const SignUp = () => {
       alignItems="center"
       minHeight="100vh"
       sx={{
-        // backgroundColor: "#c2dfff" ,
+        background: "none",
         padding: 2,
       }}
     >

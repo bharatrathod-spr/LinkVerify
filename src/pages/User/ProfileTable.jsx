@@ -7,6 +7,11 @@ import {
   IconButton,
   Grid,
   Tooltip,
+  Stack,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
 } from "@mui/material";
 import { Link } from "react-router-dom";
 import { Edit, Visibility, Delete } from "@mui/icons-material";
@@ -40,12 +45,26 @@ const mobileHeaderData = [
 const ProfileTable = () => {
   const [open, setOpen] = useState(false);
   const [profileId, setProfileId] = useState(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [profileToDelete, setProfileToDelete] = useState(null);
   const { profiles, loading, handleDelete } = useProfile();
 
   const toggleModel = () => {
     setOpen(!open);
     if (open) {
       setProfileId(null);
+    }
+  };
+
+  const handleDialogClose = () => {
+    setDialogOpen(false);
+    setProfileToDelete(null);
+  };
+
+  const handleDeleteProfile = async () => {
+    if (profileToDelete) {
+      await handleDelete(profileToDelete);
+      setDialogOpen(false);
     }
   };
 
@@ -67,7 +86,7 @@ const ProfileTable = () => {
       <Grid item>
         <Tooltip title="Details">
           <IconButton
-            color="default"
+            color="primary"
             component={Link}
             to="/user/validation-profile-details"
             state={{ ValidationProfileId: profile.ValidationProfileId }}
@@ -79,8 +98,11 @@ const ProfileTable = () => {
       <Grid item>
         <Tooltip title="Delete">
           <IconButton
-            color="secondary"
-            onClick={() => handleDelete(profile.ValidationProfileId)}
+            color="error"
+            onClick={() => {
+              setProfileToDelete(profile.ValidationProfileId);
+              setDialogOpen(true);
+            }}
           >
             <Delete />
           </IconButton>
@@ -98,17 +120,31 @@ const ProfileTable = () => {
           alignItems: "start",
         }}
       >
-        <Typography variant="h5" gutterBottom>
-          URL Audit Profile
-        </Typography>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            paddingBottom: 1,
+          }}
+        >
+          <Stack direction="row" spacing={1} alignItems="center">
+            <Typography
+              variant="h5"
+              gutterBottom
+              color="primary"
+              sx={{ fontWeight: "bold" }}
+            >
+              URL Audit Profile
+            </Typography>
+          </Stack>
+        </Box>
         <Button variant="contained" color="primary" onClick={toggleModel}>
           Add URL Audit Profile
         </Button>
       </Box>
       {loading && !profiles ? (
-        <>
-          <Loader />
-        </>
+        <Loader />
       ) : (
         <Paper
           elevation={3}
@@ -152,6 +188,22 @@ const ProfileTable = () => {
       {open && (
         <ProfileModal open={open} onClose={toggleModel} profileId={profileId} />
       )}
+
+      <Dialog open={dialogOpen} onClose={handleDialogClose}>
+        <DialogTitle>Delete Profile</DialogTitle>
+        <DialogContent>
+          Are you sure you want to delete this profile? This action cannot be
+          undone.
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleDialogClose} color="primary">
+            Cancel
+          </Button>
+          <Button onClick={handleDeleteProfile} color="error">
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };

@@ -2,7 +2,8 @@ import { createSlice } from "@reduxjs/toolkit";
 import {
   fetchUserAlerts,
   updateUserAlerts,
-  postUserSlackAlerts,
+  toggleSubscription,
+  setAlertFrequency,
 } from "../actions/settingActions";
 
 const initialState = {
@@ -24,11 +25,11 @@ const settingSlice = createSlice({
       state.Slack = null;
       state.Sms = null;
       state.error = null;
+      state.loading = false;
     },
   },
   extraReducers: (builder) => {
     builder
-      // Get User Alert
       .addCase(fetchUserAlerts.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -42,21 +43,6 @@ const settingSlice = createSlice({
         state.error = action.payload;
       })
 
-      // post slack User Alerts
-      .addCase(postUserSlackAlerts.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(postUserSlackAlerts.fulfilled, (state, action) => {
-        state.loading = false;
-        // state.alerts = action.payload;
-      })
-      .addCase(postUserSlackAlerts.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload;
-      })
-
-      // Update User Alerts
       .addCase(updateUserAlerts.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -66,6 +52,37 @@ const settingSlice = createSlice({
         state.alerts = action.payload;
       })
       .addCase(updateUserAlerts.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+
+      .addCase(toggleSubscription.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(toggleSubscription.fulfilled, (state, action) => {
+        state.loading = false;
+        const { type, subscriber } = action.payload;
+        if (state.alerts[type]) {
+          state.alerts[type].Subscriber = subscriber;
+        }
+      })
+      .addCase(toggleSubscription.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+
+      // Set Frequency Reducer
+      .addCase(setAlertFrequency.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(setAlertFrequency.fulfilled, (state, action) => {
+        state.loading = false;
+        const { type, frequency } = action.payload;
+        if (state.alerts[type]) {
+          state.alerts[type].Frequency = frequency;
+        }
+      })
+      .addCase(setAlertFrequency.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       });

@@ -14,7 +14,7 @@ const ChangePassword = () => {
     try {
       const userId = user?.UserId;
       await updatePassword(formData, userId);
-      navigate("/user/");
+      navigate("/user/dashboard");
     } catch (error) {
       console.error("Error updating password:", error);
     }
@@ -29,7 +29,11 @@ const ChangePassword = () => {
           alignItems: "start",
         }}
       >
-        <Typography variant="h5" gutterBottom>
+        <Typography
+          variant="h5"
+          color="primary"
+          sx={{ fontWeight: "bold" }}
+        >
           Change Password
         </Typography>
       </Box>

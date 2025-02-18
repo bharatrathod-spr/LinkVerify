@@ -16,8 +16,11 @@ import {
 import { Link, useLocation } from "react-router-dom";
 import { useProfile } from "../../hooks/useProfile";
 import Loader from "../../components/Common/Loader";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import { useNavigate } from "react-router-dom";
 
 const ProfileDetail = () => {
+  const navigate = useNavigate();
   const location = useLocation();
   const validationProfileId = location.state?.ValidationProfileId;
 
@@ -28,6 +31,9 @@ const ProfileDetail = () => {
       handleLogDetails(validationProfileId);
     }
   }, [validationProfileId]);
+  const handleBack = () => {
+    navigate(-1);
+  };
 
   return (
     <Box sx={{ padding: 4 }}>
@@ -39,26 +45,36 @@ const ProfileDetail = () => {
           mb: 3,
         }}
       >
-        <Typography variant="h5" gutterBottom >
+        <Typography
+          variant="h5"
+          gutterBottom
+          color="primary"
+          sx={{ fontWeight: "bold" }}
+        >
           URL Audit Details
         </Typography>
         <Button
           variant="outlined"
           color="primary"
-          component={Link}
-          to="/user/URLAuditProfile"
+          onClick={handleBack}
           sx={{
             textTransform: "none",
             borderRadius: "20px",
             fontSize: "14px",
             padding: "8px 20px",
+            display: "flex",
+            alignItems: "center",
+            gap: 1,
             "&:hover": {
               borderColor: "#1976d2",
               backgroundColor: "#1976d2",
               color: "#fff",
+              boxShadow: "0 4px 10px rgba(0, 0, 0, 0.1)",
+              transition: "all 0.3s ease",
             },
           }}
         >
+          <ArrowBackIcon sx={{ fontSize: 18 }} />
           Back
         </Button>
       </Box>
@@ -89,11 +105,7 @@ const ProfileDetail = () => {
                     }}
                   >
                     <CardContent>
-                      <Typography
-                        variant="h6"
-                        gutterBottom
-                        sx={{ color: "#1976d2" }}
-                      >
+                      <Typography variant="h6" gutterBottom color="primary">
                         Profile Information
                       </Typography>
                       <Table sx={{ minWidth: 350 }}>
@@ -166,11 +178,7 @@ const ProfileDetail = () => {
                     }}
                   >
                     <CardContent>
-                      <Typography
-                        variant="h6"
-                        gutterBottom
-                        sx={{ color: "#1976d2" }}
-                      >
+                      <Typography variant="h6" gutterBottom color="primary">
                         Audit Summary
                       </Typography>
                       <Table sx={{ minWidth: 350 }}>

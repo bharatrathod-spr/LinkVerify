@@ -20,7 +20,12 @@ const UserProfile = () => {
           alignItems: "start",
         }}
       >
-        <Typography variant="h5" gutterBottom>
+        <Typography
+          variant="h5"
+          gutterBottom
+          color="primary"
+          sx={{ fontWeight: "bold" }}
+        >
           User Profile
         </Typography>
       </Box>

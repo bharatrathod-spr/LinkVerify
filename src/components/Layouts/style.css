@@ -32,6 +32,6 @@
 
 @media (min-width: 600px) {
   .user-main {
-    padding-left: 240px;
+    padding-right: 240px;
   }
 }

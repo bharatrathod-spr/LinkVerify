@@ -128,7 +128,6 @@ const MailConfigModal = ({ open, handleClose, userId, configId }) => {
           Set your SMTP Mail Configuration settings here.
         </Typography>
 
-        {/* Form Fields */}
         <TextField
           label="Host"
           name="Host"

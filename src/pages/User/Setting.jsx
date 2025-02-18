@@ -1,5 +1,3 @@
-// //Setting.jsx
-
 import React, { useEffect, useState } from "react";
 import {
   Typography,
@@ -70,6 +68,14 @@ const Settings = () => {
         await dispatch(toggleSubscription(alertMap[key]));
 
         toast.success(`${key} subscription updated successfully!`);
+
+        if (key === "Email" && !subscriptionState[key]) {
+          setTimeout(() => {
+            setOpenMailModal(true);
+          }, 500);
+        } else if (key === "Email" && subscriptionState[key]) {
+          setOpenMailModal(false);
+        }
       } catch (error) {
         toast.error(
           error || `Failed to update ${key} subscription. Please try again.`

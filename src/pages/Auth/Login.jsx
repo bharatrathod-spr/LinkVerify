@@ -25,7 +25,7 @@ const Login = () => {
         logout();
       } else {
         setTimeout(() => {
-          navigate(`/${user?.Role}/`);
+          navigate(`/${user?.Role}/dashboard`);
         }, 2000);
       }
     }

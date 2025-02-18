@@ -15,7 +15,7 @@ const SignUp = () => {
   useEffect(() => {
     if (token && user) {
       setTimeout(() => {
-        navigate(`/user/`);
+        navigate(`/user/dashboard`);
       }, 2000);
     }
   }, [token, user]);

@@ -14,7 +14,7 @@ const ChangePassword = () => {
     try {
       const userId = user?.UserId;
       await updatePassword(formData, userId);
-      navigate("/user/");
+      navigate("/user/dashboard");
     } catch (error) {
       console.error("Error updating password:", error);
     }

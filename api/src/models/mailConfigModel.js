@@ -16,11 +16,11 @@ const mailConfigurationSchema = new Schema(
       type: String,
     },
 
-    Host: { type: String },
-    Port: { type: String },
-    User: { type: String },
-    Password: { type: String },
-    Mail: { type: String },
+    Host: { type: String, required: true },
+    Port: { type: String, required: true },
+    User: { type: String, required: true },
+    Password: { type: String, required: true },
+    Mail: { type: String, required: true },
 
     Secure: { type: Boolean, default: true },
     IsDelete: { type: Boolean, default: false },

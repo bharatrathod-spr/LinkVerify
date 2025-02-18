@@ -86,7 +86,7 @@ const ProfileTable = () => {
       <Grid item>
         <Tooltip title="Details">
           <IconButton
-            color="default"
+            color="primary"
             component={Link}
             to="/user/validation-profile-details"
             state={{ ValidationProfileId: profile.ValidationProfileId }}
@@ -98,7 +98,7 @@ const ProfileTable = () => {
       <Grid item>
         <Tooltip title="Delete">
           <IconButton
-            color="secondary"
+            color="error"
             onClick={() => {
               setProfileToDelete(profile.ValidationProfileId);
               setDialogOpen(true);
@@ -129,7 +129,12 @@ const ProfileTable = () => {
           }}
         >
           <Stack direction="row" spacing={1} alignItems="center">
-            <Typography variant="h5" gutterBottom color="primary" sx={{ fontWeight: "bold" }}>
+            <Typography
+              variant="h5"
+              gutterBottom
+              color="primary"
+              sx={{ fontWeight: "bold" }}
+            >
               URL Audit Profile
             </Typography>
           </Stack>
@@ -194,7 +199,7 @@ const ProfileTable = () => {
           <Button onClick={handleDialogClose} color="primary">
             Cancel
           </Button>
-          <Button onClick={handleDeleteProfile} color="secondary">
+          <Button onClick={handleDeleteProfile} color="error">
             Delete
           </Button>
         </DialogActions>

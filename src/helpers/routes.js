@@ -39,7 +39,7 @@ const routes = [
     pages: [
       {
         title: "Dashboard",
-        path: "",
+        path: "dashboard",
         component: pages.UserDashboard,
         icon: WidgetsRounded,
         isDisplay: true,
@@ -49,7 +49,7 @@ const routes = [
       },
       {
         title: "URL Audit Profile",
-        path: "URLAuditProfile",
+        path: "url-audit-profile",
         component: pages.ProfileTable,
         icon: Assessment,
         isDisplay: true,
@@ -60,7 +60,7 @@ const routes = [
       },
       {
         title: "Audit Logs",
-        path: "AuditLogs",
+        path: "audit-logs",
         component: pages.LogsTable,
         icon: Event,
         isDisplay: true,

@@ -56,19 +56,13 @@ const Navbar = ({ role }) => {
     <StyledAppBar
       position="fixed"
       sx={{
-        paddingLeft: isMobile ? "30px" : "240px",
+        paddingRight: isMobile ? "30px" : "240px",
       }}
     >
       <Toolbar>
         <Typography variant="h6" fontWeight="bold" sx={{ flexGrow: 1 }}>
           Welcome to LinkVerify
         </Typography>
-
-        <IconButton color="inherit">
-          <Badge>
-            <NotificationsRounded />
-          </Badge>
-        </IconButton>
 
         <IconButton
           color="inherit"
@@ -95,7 +89,7 @@ const Navbar = ({ role }) => {
           </Box>
         </IconButton>
 
-        <StyledMenu
+        {/* <StyledMenu
           anchorEl={anchorEl}
           open={Boolean(anchorEl)}
           onClose={handleCloseMenu}
@@ -147,7 +141,7 @@ const Navbar = ({ role }) => {
           <MenuItem onClick={logout}>
             <LogoutRounded sx={{ marginRight: 1, color: "red" }} /> Logout
           </MenuItem>
-        </StyledMenu>
+        </StyledMenu> */}
       </Toolbar>
     </StyledAppBar>
   );

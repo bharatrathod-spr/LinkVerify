@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Button,
@@ -15,11 +15,18 @@ import {
   DialogContent,
   DialogTitle,
   TextField,
+  Card,
+  CardContent,
+  IconButton,
 } from "@mui/material";
 import MailConfigModal from "./MailConfigModal";
 import useMailConfig from "../../hooks/useMail";
 import { toast } from "react-toastify";
 import { useAuth } from "../../hooks/useAuth";
+import DeleteIcon from "@mui/icons-material/Delete";
+import EditIcon from "@mui/icons-material/Edit";
+import AddIcon from "@mui/icons-material/Add";
+import SearchIcon from "@mui/icons-material/Search";
 
 const MailConfiguration = () => {
   const { mailConfigList, handleDeleteMailConfig } = useMailConfig();
@@ -30,7 +37,6 @@ const MailConfiguration = () => {
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [selectedConfigId, setSelectedConfigId] = useState(null);
   const [editConfigId, setEditConfigId] = useState(null);
-
   const [filter, setFilter] = useState("");
   const [filteredConfigs, setFilteredConfigs] = useState([]);
 
@@ -62,97 +68,122 @@ const MailConfiguration = () => {
   const handleConfirmDelete = async () => {
     try {
       setOpenDeleteDialog(false);
-
       toast.success("Mail configuration deleted successfully!");
-
       setFilteredConfigs((prev) =>
         prev.filter((config) => config.MailConfigurationId !== selectedConfigId)
       );
-
       await handleDeleteMailConfig(selectedConfigId);
-      toast.success("Mail configuration deleted successfully!", {
-        autoClose: 3000,
-      });
     } catch (error) {
       setFilteredConfigs(mailConfigList);
-      const errorMessage =
+      toast.error(
         error.response?.data?.message ||
-        "Failed to delete the mail configuration. Please try again.";
-      toast.error(errorMessage, { autoClose: 5000 });
-    } finally {
+          "Failed to delete the mail configuration. Please try again.",
+        { autoClose: 5000 }
+      );
     }
   };
 
   return (
     <Box sx={{ margin: "30px", mt: 5 }}>
-      <Typography variant="h5" color="primary" sx={{ fontWeight: "bold" }}>
+      <Typography
+        variant="h5"
+        color="primary"
+        sx={{ fontWeight: "bold", mb: 3 }}
+      >
         Mail Configurations
       </Typography>
 
-      <TextField
-        label="Filter"
-        variant="outlined"
-        size="small"
-        value={filter}
-        onChange={(e) => setFilter(e.target.value)}
-        sx={{ mb: 2, width: "300px" }}
-      />
+      <Card elevation={3} sx={{ p: 3, borderRadius: 2 }}>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            mb: 3,
+          }}
+        >
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            <SearchIcon color="action" />
+            <TextField
+              label="Search Configurations"
+              variant="outlined"
+              size="small"
+              value={filter}
+              onChange={(e) => setFilter(e.target.value)}
+              sx={{ width: "250px" }}
+            />
+          </Box>
 
-      <Button
-        variant="contained"
-        color="primary"
-        onClick={handleAddClick}
-        sx={{ float: "right", mb: 5 }}
-      >
-        Add New Mail Configuration
-      </Button>
+          <Button
+            variant="contained"
+            startIcon={<AddIcon />}
+            color="primary"
+            onClick={handleAddClick}
+            sx={{ fontWeight: "bold" }}
+          >
+            Add Configuration
+          </Button>
+        </Box>
 
-      <TableContainer component={Paper} sx={{ mt: 2 }}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>Host</TableCell>
-              <TableCell>Port</TableCell>
-              <TableCell>Secure</TableCell>
-              <TableCell>User</TableCell>
-              <TableCell>Mail</TableCell>
-              <TableCell>Actions</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {filteredConfigs.length > 0 ? (
-              filteredConfigs.map((config) => (
-                <TableRow key={config.MailConfigurationId}>
-                  <TableCell>{config.Host}</TableCell>
-                  <TableCell>{config.Port}</TableCell>
-                  <TableCell>{config.Secure ? "Yes" : "No"}</TableCell>
-                  <TableCell>{config.User}</TableCell>
-                  <TableCell>{config.Mail}</TableCell>
-                  <TableCell>
-                    <Button onClick={() => handleEditClick(config)}>
-                      Edit
-                    </Button>
-                    <Button
-                      onClick={() =>
-                        handleDeleteClick(config.MailConfigurationId)
-                      }
-                      color="error"
-                    >
-                      Delete
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell colSpan={6} align="center">
-                  No mail configurations found.
+        <TableContainer component={Paper} sx={{ borderRadius: 2 }}>
+          <Table>
+            <TableHead>
+              <TableRow sx={{ backgroundColor: "#f5f5f5" }}>
+                <TableCell sx={{ fontWeight: "bold" }}>Host</TableCell>
+                <TableCell sx={{ fontWeight: "bold" }}>Port</TableCell>
+                <TableCell sx={{ fontWeight: "bold" }}>Secure</TableCell>
+                <TableCell sx={{ fontWeight: "bold" }}>User</TableCell>
+                <TableCell sx={{ fontWeight: "bold" }}>Mail</TableCell>
+                <TableCell sx={{ fontWeight: "bold", textAlign: "center" }}>
+                  Actions
                 </TableCell>
               </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </TableContainer>
+            </TableHead>
+            <TableBody>
+              {filteredConfigs.length > 0 ? (
+                filteredConfigs.map((config) => (
+                  <TableRow
+                    key={config.MailConfigurationId}
+                    hover
+                    sx={{
+                      transition: "0.3s",
+                      "&:hover": { backgroundColor: "#fafafa" },
+                    }}
+                  >
+                    <TableCell>{config.Host}</TableCell>
+                    <TableCell>{config.Port}</TableCell>
+                    <TableCell>{config.Secure ? "Yes" : "No"}</TableCell>
+                    <TableCell>{config.User}</TableCell>
+                    <TableCell>{config.Mail}</TableCell>
+                    <TableCell sx={{ textAlign: "center" }}>
+                      <IconButton
+                        onClick={() => handleEditClick(config)}
+                        color="primary"
+                      >
+                        <EditIcon />
+                      </IconButton>
+                      <IconButton
+                        onClick={() =>
+                          handleDeleteClick(config.MailConfigurationId)
+                        }
+                        color="error"
+                      >
+                        <DeleteIcon />
+                      </IconButton>
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={6} align="center">
+                    No mail configurations found.
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </Card>
 
       <Dialog
         open={openDeleteDialog}

@@ -123,12 +123,12 @@ const getMailConfigurationByAlertSubscription = async (req, res) => {
 
 const updateMailConfiguration = async (req, res) => {
   const { MailConfigurationId } = req.params;
-  const updateData = req.body;
+  const { Host, Port, User, Password, Mail } = req.body;
 
   try {
     const result = await MailConfiguration.findOneAndUpdate(
       { MailConfigurationId, IsDelete: false },
-      updateData,
+      { Host, Port, User, Password, Mail },
       { new: true }
     );
 

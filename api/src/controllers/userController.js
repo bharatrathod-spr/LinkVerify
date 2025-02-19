@@ -7,6 +7,7 @@ const {
   updateUserById,
   deleteUserById,
   getUserByEmail,
+  findUserByEmail,
 } = require("../services/userService");
 
 const {
@@ -285,9 +286,15 @@ const getSuperUserDashboardData = async (req, res) => {
   }
 };
 
-// Create user
+//SignUp
 const createUser = async (req, res) => {
   try {
+
+    const existingUser = await findUserByEmail(req.body.EmailAddress);
+    if (existingUser) {
+      return res.status(400).json({ error: "Email address already exists" });
+    }
+
     if (req.body.Password) {
       req.body.Password = await hashPassword(req.body.Password);
     }
@@ -304,6 +311,7 @@ const createUser = async (req, res) => {
         NewData: user,
       }
     );
+
     await createAlert({ UserId: user.UserId });
 
     let token;

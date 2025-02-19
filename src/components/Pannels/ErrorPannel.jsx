@@ -13,7 +13,7 @@ const ErrorPanel = ({ errors }) => {
         variant="body1"
         sx={{ fontWeight: "bold", color: primaryColor, mb: 1 }}
       >
-        ⚠️ Recent Errors
+        Recent Errors
       </Typography>
 
       {errors?.length > 0 ? (

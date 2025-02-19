@@ -14,7 +14,12 @@ import {
   DialogTitle,
 } from "@mui/material";
 import { Link } from "react-router-dom";
-import { Edit, Visibility, Delete } from "@mui/icons-material";
+import {
+  Edit,
+  Visibility,
+  Delete,
+  AddCircleOutline,
+} from "@mui/icons-material";
 import TableLayout from "../../components/Table/TableLayout";
 import moment from "moment";
 import ProfileModal from "../../components/Modals/ProfileModal";
@@ -28,8 +33,8 @@ const headerData = [
     width: "13%",
     isOverflow: true,
   },
-  { field: "SourceLink", label: "Source URL", width: "18%", isOverflow: true },
-  { field: "SearchLink", label: "Search URL", width: "18%", isOverflow: true },
+  { field: "SourceLink", label: "Source Link", width: "18%", isOverflow: true },
+  { field: "SearchLink", label: "Search Link", width: "18%", isOverflow: true },
   { field: "CronExpression", label: "Cron Expression", width: "12%" },
   { field: "LastErrorAt", label: "Last Error At", width: "12%" },
   { field: "LastSuccessAt", label: "Last Success At", width: "12%" },
@@ -37,8 +42,8 @@ const headerData = [
 ];
 
 const mobileHeaderData = [
-  { field: "SourceLink", label: "Source URL", width: "35%" },
-  { field: "SearchLink", label: "Search URL", width: "30%" },
+  { field: "SourceLink", label: "Source Link", width: "35%" },
+  { field: "SearchLink", label: "Search Link", width: "30%" },
   { field: "actions", label: "Actions", width: "35%", align: "center" },
 ];
 
@@ -139,7 +144,12 @@ const ProfileTable = () => {
             </Typography>
           </Stack>
         </Box>
-        <Button variant="contained" color="primary" onClick={toggleModel}>
+        <Button
+          variant="contained"
+          color="primary"
+          startIcon={<AddCircleOutline />}
+          onClick={toggleModel}
+        >
           Add URL Audit Profile
         </Button>
       </Box>

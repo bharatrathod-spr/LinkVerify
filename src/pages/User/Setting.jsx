@@ -11,6 +11,10 @@ import {
   TableCell,
   TableBody,
   Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
 } from "@mui/material";
 import { Form, Formik } from "formik";
 import useFetchUserAlerts from "../../hooks/useSetting";
@@ -30,6 +34,8 @@ const Settings = () => {
   const [frequencyState, setFrequencyState] = useState({});
   const [selectedMailConfig, setSelectedMailConfig] = useState(null);
   const [openMailModal, setOpenMailModal] = useState(false);
+  const [openConfirmModal, setOpenConfirmModal] = useState(false);
+  const [alertToUnsubscribe, setAlertToUnsubscribe] = useState(null);
 
   const alertMap = {
     Slack: "slack",
@@ -62,26 +68,47 @@ const Settings = () => {
 
   const handleSubscribeClick = async (key) => {
     if (alertMap[key]) {
-      try {
-        setSubscriptionState((prev) => ({ ...prev, [key]: !prev[key] }));
-
-        await dispatch(toggleSubscription(alertMap[key]));
-
-        toast.success(`${key} subscription updated successfully!`);
-
-        if (key === "Email" && !subscriptionState[key]) {
-          setTimeout(() => {
-            setOpenMailModal(true);
-          }, 500);
-        } else if (key === "Email" && subscriptionState[key]) {
-          setOpenMailModal(false);
-        }
-      } catch (error) {
-        toast.error(
-          error || `Failed to update ${key} subscription. Please try again.`
-        );
+      if (subscriptionState[key]) {
+        setAlertToUnsubscribe(key);
+        setOpenConfirmModal(true);
+      } else {
+        await toggleSubscriptionAndProceed(key);
       }
     }
+  };
+
+  const toggleSubscriptionAndProceed = async (key) => {
+    try {
+      setSubscriptionState((prev) => ({ ...prev, [key]: !prev[key] }));
+
+      await dispatch(toggleSubscription(alertMap[key]));
+
+      toast.success(`${key} subscription updated successfully!`);
+
+      if (key === "Email" && !subscriptionState[key]) {
+        setTimeout(() => {
+          setOpenMailModal(true);
+        }, 500);
+      } else if (key === "Email" && subscriptionState[key]) {
+        setOpenMailModal(false);
+      }
+    } catch (error) {
+      toast.error(
+        error || `Failed to update ${key} subscription. Please try again.`
+      );
+    }
+  };
+
+  const handleConfirmUnsubscribe = async () => {
+    if (alertToUnsubscribe) {
+      await toggleSubscriptionAndProceed(alertToUnsubscribe);
+      setOpenConfirmModal(false);
+    }
+  };
+
+  const handleCancelUnsubscribe = () => {
+    setOpenConfirmModal(false);
+    setAlertToUnsubscribe(null);
   };
 
   const handleFrequencyChange = async (key, newFrequency) => {
@@ -101,10 +128,19 @@ const Settings = () => {
   };
 
   return (
-    <Box sx={{ padding: 4 }}>
-      <Typography variant="h5" color="primary" sx={{ fontWeight: "bold" }}>
+    <Box sx={{ padding: 4, margin: "auto" }}>
+      <Typography
+        variant="h5"
+        color="primary"
+        sx={{
+          fontWeight: "bold",
+          marginBottom: 3,
+          fontFamily: "'Roboto', sans-serif",
+        }}
+      >
         Alert Subscriptions
       </Typography>
+
       {loading ? (
         <Box
           sx={{
@@ -114,40 +150,95 @@ const Settings = () => {
             height: "300px",
           }}
         >
-          <CircularProgress />
+          <CircularProgress color="primary" />
         </Box>
       ) : (
         <Paper
-          elevation={3}
-          sx={{ padding: 2, marginTop: 2, position: "relative" }}
+          elevation={6}
+          sx={{
+            padding: 4,
+            borderRadius: "12px",
+            boxShadow: "0px 4px 15px rgba(0, 0, 0, 0.1)",
+            backgroundColor: "#f9f9f9",
+          }}
         >
           <Formik initialValues={alerts} onSubmit={handleUpdate}>
             {() => (
               <Form>
-                <TableContainer component={Paper}>
+                <TableContainer
+                  component={Paper}
+                  sx={{ borderRadius: "8px", overflow: "hidden" }}
+                >
                   <Table>
                     <TableHead>
-                      <TableRow>
-                        <TableCell>Subscriber Preferences</TableCell>
-                        <TableCell align="center"></TableCell>
-                        <TableCell align="center">Frequency</TableCell>
-                        <TableCell align="center">Mail Configuration</TableCell>
+                      <TableRow
+                        sx={{
+                          backgroundColor: "#f5f5f5",
+                          borderBottom: "2px solid #e0e0e0",
+                        }}
+                      >
+                        <TableCell
+                          sx={{
+                            fontWeight: "bold",
+                            fontSize: "16px",
+                            color: "#333",
+                          }}
+                        >
+                          Subscriber Preferences
+                        </TableCell>
+                        <TableCell
+                          align="center"
+                          sx={{ fontWeight: "bold", fontSize: "16px" }}
+                        >
+                          Actions
+                        </TableCell>
+                        <TableCell
+                          align="center"
+                          sx={{ fontWeight: "bold", fontSize: "16px" }}
+                        >
+                          Frequency
+                        </TableCell>
+                        <TableCell
+                          align="center"
+                          sx={{ fontWeight: "bold", fontSize: "16px" }}
+                        >
+                          Mail Configuration
+                        </TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
                       {Object.keys(alerts).map((key, index) => (
-                        <TableRow key={index}>
-                          <TableCell>{key}</TableCell>
+                        <TableRow
+                          key={index}
+                          sx={{
+                            backgroundColor:
+                              index % 2 === 0 ? "#fafafa" : "#fff",
+                            "&:hover": {
+                              backgroundColor: "#f0f0f0",
+                            },
+                          }}
+                        >
+                          <TableCell
+                            sx={{
+                              fontSize: "14px",
+                              fontWeight: "500",
+                              color: "#555",
+                            }}
+                          >
+                            {key}
+                          </TableCell>
                           <TableCell align="center">
                             <Button
-                              variant={
-                                subscriptionState[key]
-                                  ? "outlined"
-                                  : "contained"
-                              }
+                              variant="contained"
                               color={
-                                subscriptionState[key] ? "secondary" : "primary"
+                                subscriptionState[key] ? "error" : "success"
                               }
+                              sx={{
+                                padding: "8px 20px",
+                                textTransform: "none",
+                                borderRadius: "5px",
+                                fontWeight: "bold",
+                              }}
                               onClick={() => handleSubscribeClick(key)}
                             >
                               {subscriptionState[key]
@@ -163,12 +254,13 @@ const Settings = () => {
                                   handleFrequencyChange(key, e.target.value)
                                 }
                                 style={{
-                                  padding: "8px 12px",
+                                  padding: "8px 16px",
                                   fontSize: "14px",
-                                  borderRadius: "4px",
+                                  borderRadius: "8px",
                                   border: "1px solid #ccc",
                                   backgroundColor: "#fff",
                                   cursor: "pointer",
+                                  width: "150px",
                                 }}
                               >
                                 <option value="per_minute">Per Minute</option>
@@ -192,6 +284,16 @@ const Settings = () => {
                                 color="primary"
                                 onClick={() => setOpenMailModal(true)}
                                 disabled={!subscriptionState[key]}
+                                sx={{
+                                  padding: "8px 16px",
+                                  textTransform: "none",
+                                  fontSize: "14px",
+                                  fontWeight: "500",
+                                  borderRadius: "8px",
+                                  "&:hover": {
+                                    backgroundColor: "#e0f7fa",
+                                  },
+                                }}
                               >
                                 Select Mail Configuration
                               </Button>
@@ -214,6 +316,23 @@ const Settings = () => {
         selectedMailConfig={selectedMailConfig}
         setSelectedMailConfig={setSelectedMailConfig}
       />
+
+      <Dialog open={openConfirmModal} onClose={handleCancelUnsubscribe}>
+        <DialogTitle>Confirm Unsubscribe</DialogTitle>
+        <DialogContent>
+          <Typography>
+            Are you sure you want to unsubscribe from {alertToUnsubscribe}?
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCancelUnsubscribe} color="primary">
+            Cancel
+          </Button>
+          <Button onClick={handleConfirmUnsubscribe} color="secondary">
+            Confirm
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };

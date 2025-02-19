@@ -1,4 +1,16 @@
-import { Dialog, DialogContent, DialogTitle } from "@mui/material";
+import {
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Button,
+  Typography,
+  IconButton,
+  Stack,
+  CircularProgress,
+  Box,
+} from "@mui/material";
+import { Close } from "@mui/icons-material";
 import React, { useEffect } from "react";
 import { ProfileForm } from "../../config/Forms/Forms";
 import { useProfile } from "../../hooks/useProfile";
@@ -20,8 +32,6 @@ const ProfileModal = ({ open, onClose, profileId }) => {
     } else {
       deselectProfile();
     }
-
-    return () => {};
   }, [profileId]);
 
   return (
@@ -33,45 +43,67 @@ const ProfileModal = ({ open, onClose, profileId }) => {
       }}
       maxWidth="sm"
       fullWidth
+      PaperProps={{
+        sx: { borderRadius: 3, boxShadow: 8, overflow: "hidden" },
+      }}
       aria-labelledby="profile-modal-title"
       aria-describedby="profile-modal-description"
     >
-      {loading && !selectedProfile ? (
-        <Loader />
-      ) : (
-        <DialogContent>
-          <DialogTitle
+      <Box
+        sx={{
+          width: "100%",
+          height: 5,
+          backgroundColor: "primary.main",
+        }}
+      />
+      <Stack
+        direction="row"
+        justifyContent="space-between"
+        alignItems="center"
+        sx={{ px: 3, pt: 2 }}
+      >
+        <Box sx={{ width: "100%" }}>
+          <Typography
             id="profile-modal-title"
-            sx={{ px: 0, pt: 0 }}
             variant="h6"
+            fontWeight="bold"
+            color="primary"
+            sx={{ display: "inline-block", pb: 0.5 }}
           >
             {selectedProfile
               ? "Edit URL Audit Profile"
               : "Add URL Audit Profile"}
-          </DialogTitle>
+          </Typography>
+        </Box>
+        <IconButton onClick={onClose} sx={{ color: "text.primary" }}>
+          <Close />
+        </IconButton>
+      </Stack>
+
+      <DialogContent sx={{ p: 3 }}>
+        {loading && !selectedProfile ? (
+          <Box sx={{ display: "flex", justifyContent: "center", py: 4 }}>
+            <CircularProgress color="primary" />
+          </Box>
+        ) : (
           <ProfileForm
             initialValues={selectedProfile}
             onClose={onClose}
             handleSubmit={(values) => {
-              if (profileId)
-                handleUpdate(profileId, {
-                  ...values,
-                  CronExpression: `${values.cronExpression?.occurrence || ""} ${
-                    values.cronExpression?.period || ""
-                  }`,
-                });
-              else
-                handleCreate({
-                  ...values,
-                  CronExpression: `${values.cronExpression?.occurrence || ""} ${
-                    values.cronExpression?.period || ""
-                  }`,
-                });
+              const profileData = {
+                ...values,
+                CronExpression: `${values.cronExpression?.occurrence || ""} ${
+                  values.cronExpression?.period || ""
+                }`,
+              };
+              profileId
+                ? handleUpdate(profileId, profileData)
+                : handleCreate(profileData);
               onClose();
             }}
           />
-        </DialogContent>
-      )}
+        )}
+      </DialogContent>
     </Dialog>
   );
 };

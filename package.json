@@ -11,6 +11,7 @@
     "@mui/lab": "^6.0.0-beta.17",
     "@mui/material": "^6.1.9",
     "@mui/styles": "^6.1.9",
+    "@mui/x-data-grid": "^7.27.0",
     "@mui/x-date-pickers": "^7.23.0",
     "@react-google-maps/api": "^2.20.3",
     "@reduxjs/toolkit": "^2.5.0",

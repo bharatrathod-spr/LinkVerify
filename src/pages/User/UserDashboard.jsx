@@ -74,7 +74,7 @@ const UserDashboard = () => {
               animation: isVisible ? "slideUp 0.8s ease-in-out" : "none",
             }}
           >
-            <Paper elevation={3} sx={{ p: 2 }}>
+            <Paper>
               {graphdata?.successFailureGraph && (
                 <SuccessFailureGraph
                   data={graphdata?.successFailureGraph}
@@ -92,7 +92,7 @@ const UserDashboard = () => {
               animation: isVisible ? "slideUp 0.9s ease-in-out" : "none",
             }}
           >
-            <Paper elevation={3} sx={{ p: 2 }}>
+            <Paper>
               {graphdata?.responseTimeGraph && (
                 <ResponseTimeGraph
                   data={graphdata?.responseTimeGraph}

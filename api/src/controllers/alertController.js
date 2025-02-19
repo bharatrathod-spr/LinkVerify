@@ -87,7 +87,7 @@ const postFailureAlerts = async (
     let alertSent = false;
 
     if (alertTypes.includes("slack")) {
-      const slackMessage = `Source URL: ${sourceUrl}\nSearch URL: ${searchUrl}\nFailure Reasons:\n- ${failureReasons.join(
+      const slackMessage = `Source Link: ${sourceUrl}\nSearch Link: ${searchUrl}\nFailure Reasons:\n- ${failureReasons.join(
         "\n- "
       )}`;
 

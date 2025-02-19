@@ -96,10 +96,8 @@ const MailConfigModal = ({ open, handleClose, userId, configId }) => {
     try {
       if (configId) {
         await handleUpdateMailConfig(formData);
-        toast.success("Mail configuration updated successfully!");
       } else {
         await handleAddMailConfig(formData);
-        toast.success("Mail configuration added successfully!");
       }
       handleClose();
     } catch (error) {

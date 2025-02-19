@@ -3,6 +3,17 @@ const AlertSubscription = require("../models/alertModel");
 
 const createMailConfiguration = async (req, res) => {
   try {
+    const existingConfig = await MailConfiguration.findOne({
+      User: req.body.User,
+    });
+
+    if (existingConfig) {
+      return res.status(400).json({
+        statusCode: 400,
+        message: "Mail configuration already exists for this user.",
+      });
+    }
+
     const userToSave = await MailConfiguration.create(req.body);
 
     return res.status(201).json({
@@ -126,6 +137,21 @@ const updateMailConfiguration = async (req, res) => {
   const { Host, Port, User, Password, Mail } = req.body;
 
   try {
+    const existingConfig = await MailConfiguration.findOne({
+      User,
+      IsDelete: false,
+    });
+
+    if (
+      existingConfig &&
+      existingConfig.MailConfigurationId !== MailConfigurationId
+    ) {
+      return res.status(400).json({
+        statusCode: 400,
+        message: "A mail configuration already exists for this user.",
+      });
+    }
+
     const result = await MailConfiguration.findOneAndUpdate(
       { MailConfigurationId, IsDelete: false },
       { Host, Port, User, Password, Mail },

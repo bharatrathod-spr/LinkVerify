@@ -54,11 +54,14 @@ export const addMailConfig = createAsyncThunk(
         ...config,
         userId,
       });
-      toast.success("Mail configuration added successfully!");
       return response.data.data;
     } catch (error) {
-      toast.error("Failed to add mail configuration.");
-      return rejectWithValue(error.message);
+      if (error.response && error.response.status === 400) {
+        toast.error("A mail configuration already exists for this user.");
+      } else {
+        toast.error("Failed to add mail configuration.");
+      }
+      return rejectWithValue(error.response?.data?.message || error.message);
     }
   }
 );
@@ -74,8 +77,15 @@ export const updateMailConfigurations = createAsyncThunk(
         `/mail-config/${MailConfigurationId}`,
         { Host, Port, User, Password, Mail, Secure }
       );
+      toast.success("Mail configuration updated successfully!");
+
       return response.data;
     } catch (error) {
+      if (error.response && error.response.status === 400) {
+        toast.error("A mail configuration already exists for this user.");
+      } else {
+        toast.error("Failed to add mail configuration.");
+      }
       return rejectWithValue(
         error.response?.data || "Error updating mail config"
       );

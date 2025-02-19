@@ -1,4 +1,4 @@
-const User = require("../models/userModel"); // Your User model
+const User = require("../models/userModel");
 
 // Get all users
 const getAllUsers = async (filter) => {
@@ -9,6 +9,10 @@ const getAllUsers = async (filter) => {
 const saveUser = async (userData) => {
   const user = new User(userData);
   return await user.save();
+};
+
+const findUserByEmail = async (email) => {
+  return await User.findOne({ EmailAddress: email });
 };
 
 // Get user by ID
@@ -51,4 +55,5 @@ module.exports = {
   updateUserById,
   deleteUserById,
   getUserByEmail,
+  findUserByEmail,
 };

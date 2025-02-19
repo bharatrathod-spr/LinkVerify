@@ -9,17 +9,25 @@ import {
   CircularProgress,
   Typography,
   IconButton,
+  TableContainer,
+  TableCell,
+  TableRow,
+  TableHead,
+  TableBody,
+  Table,
+  Paper,
 } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchMailTable } from "../../actions/mailConfigActions";
-import { updateMailConfigurations } from "../../actions/mailConfigActions";
-import { deleteMailConfig } from "../../actions/mailConfigActions";
 import { toast } from "react-toastify";
 import { useAuth } from "../../hooks/useAuth";
 import useMailConfig from "../../hooks/useMail";
 import MailConfigModal from "./MailConfigModal";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
+import { AddCircleOutline } from "@mui/icons-material";
+import { updateMailConfig } from "../../actions/settingActions";
+import Tooltip from "@mui/material/Tooltip";
 
 const MailSetModal = ({ open, handleClose }) => {
   const dispatch = useDispatch();
@@ -44,24 +52,14 @@ const MailSetModal = ({ open, handleClose }) => {
     setSelectedConfigId(configId);
   };
 
-  const handleSave = async () => {
+  const handleMailSave = async () => {
     if (!selectedConfigId) {
       toast.error("Please select a mail configuration.");
       return;
     }
-    const updatedConfig = {
-      Host: "",
-      Port: "",
-      Secure: false,
-      User: "",
-      Password: "",
-      Mail: "",
-    };
 
     try {
-      await dispatch(
-        updateMailConfigurations({ selectedConfigId, updatedConfig })
-      );
+      await dispatch(updateMailConfig({ selectedConfigId }));
       toast.success("Mail configuration updated successfully.");
       handleClose();
     } catch (error) {
@@ -123,6 +121,7 @@ const MailSetModal = ({ open, handleClose }) => {
           <Button
             variant="contained"
             color="primary"
+            startIcon={<AddCircleOutline />}
             onClick={handleAddMailConfigClick}
             sx={{ mt: 2 }}
           >
@@ -131,32 +130,6 @@ const MailSetModal = ({ open, handleClose }) => {
         </DialogTitle>
 
         <DialogContent sx={{ px: 4 }}>
-          <Box
-            sx={{
-              mb: 2,
-              border: "2px solid rgba(50, 69, 103, 1)",
-              borderRadius: "10px",
-              backgroundColor: "#5951da",
-              display: "flex",
-              justifyContent: "space-between",
-              padding: "8px",
-              color: "white",
-            }}
-          >
-            <Box sx={{ flex: 1, textAlign: "center", fontWeight: "600" }}>
-              Host
-            </Box>
-            <Box sx={{ flex: 1, textAlign: "center", fontWeight: "600" }}>
-              Port
-            </Box>
-            <Box sx={{ flex: 1, textAlign: "center", fontWeight: "600" }}>
-              Email
-            </Box>
-            <Box sx={{ flex: 1, textAlign: "center", fontWeight: "600" }}>
-              Actions
-            </Box>
-          </Box>
-
           {loading ? (
             <Box
               sx={{
@@ -180,73 +153,93 @@ const MailSetModal = ({ open, handleClose }) => {
               <Typography>No Mail Configurations Available</Typography>
             </Box>
           ) : (
-            mailConfigList.map((config) => (
-              <Box
-                key={config._id}
-                sx={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  borderRadius: "10px",
-                  padding: 2,
-                  cursor: "pointer",
-                  transition: "0.3s ease",
-                  flex: "1",
-                  "&:hover": {
-                    backgroundColor: "#f0f0f0",
-                  },
-                }}
-                onClick={() => handleRadioChange(config.MailConfigurationId)}
-              >
-                <Box>
-                  <input
-                    type="radio"
-                    name="mail-config"
-                    checked={selectedConfigId === config.MailConfigurationId}
-                    onChange={() =>
-                      handleRadioChange(config.MailConfigurationId)
-                    }
-                    style={{ width: "20px", height: "20px", cursor: "pointer" }}
-                  />
-                </Box>
-
-                <Box
-                  sx={{ flex: 1, textAlign: "center", wordBreak: "break-word" }}
-                >
-                  {config?.Host}
-                </Box>
-                <Box
-                  sx={{ flex: 1, textAlign: "center", wordBreak: "break-word" }}
-                >
-                  {config?.Port}
-                </Box>
-                <Box
-                  sx={{ flex: 1, textAlign: "center", wordBreak: "break-word" }}
-                >
-                  {config?.User}
-                </Box>
-
-                <Box sx={{ display: "flex", alignItems: "center" }}>
-                  <IconButton
-                    onClick={() => {
-                      setSelectedConfigId(config.MailConfigurationId);
-                      setIsMailConfigModalOpen(true);
-                    }}
-                    sx={{ color: "#5951da" }}
-                  >
-                    <EditIcon />
-                  </IconButton>
-                  <IconButton
-                    onClick={() =>
-                      handleDeleteConfirmOpen(config.MailConfigurationId)
-                    }
-                    sx={{ color: "red" }}
-                  >
-                    <DeleteIcon />
-                  </IconButton>
-                </Box>
-              </Box>
-            ))
+            <TableContainer component={Paper}>
+              <Table>
+                <TableHead>
+                  <TableRow sx={{ backgroundColor: "#5951da" }}>
+                    <TableCell sx={{ color: "white", fontWeight: "bold" }}>
+                      Select
+                    </TableCell>
+                    <TableCell sx={{ color: "white", fontWeight: "bold" }}>
+                      Host
+                    </TableCell>
+                    <TableCell sx={{ color: "white", fontWeight: "bold" }}>
+                      Port
+                    </TableCell>
+                    <TableCell sx={{ color: "white", fontWeight: "bold" }}>
+                      Email
+                    </TableCell>
+                    <TableCell
+                      sx={{
+                        color: "white",
+                        fontWeight: "bold",
+                        textAlign: "center",
+                      }}
+                    >
+                      Actions
+                    </TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {mailConfigList.map((config) => (
+                    <TableRow key={config._id} hover>
+                      <TableCell>
+                        <input
+                          type="radio"
+                          name="mail-config"
+                          checked={
+                            selectedConfigId === config.MailConfigurationId
+                          }
+                          onChange={() =>
+                            handleRadioChange(config.MailConfigurationId)
+                          }
+                          style={{
+                            width: "20px",
+                            height: "20px",
+                            cursor: "pointer",
+                          }}
+                        />
+                      </TableCell>
+                      <TableCell>{config?.Host}</TableCell>
+                      <TableCell>{config?.Port}</TableCell>
+                      <TableCell>
+                        <Tooltip title={config?.User} arrow>
+                          <Box
+                            sx={{
+                              wordBreak: "break-word",
+                              overflow: "hidden",
+                              textOverflow: "ellipsis",
+                              whiteSpace: "nowrap",
+                            }}
+                          >
+                            {config?.User}
+                          </Box>
+                        </Tooltip>
+                      </TableCell>
+                      <TableCell sx={{ textAlign: "center" }}>
+                        <IconButton
+                          onClick={() => {
+                            setSelectedConfigId(config.MailConfigurationId);
+                            setIsMailConfigModalOpen(true);
+                          }}
+                          sx={{ color: "#5951da" }}
+                        >
+                          <EditIcon />
+                        </IconButton>
+                        <IconButton
+                          onClick={() =>
+                            handleDeleteConfirmOpen(config.MailConfigurationId)
+                          }
+                          sx={{ color: "red" }}
+                        >
+                          <DeleteIcon />
+                        </IconButton>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
           )}
         </DialogContent>
 
@@ -259,7 +252,7 @@ const MailSetModal = ({ open, handleClose }) => {
           >
             Cancel
           </Button>
-          <Button variant="contained" color="primary" onClick={handleSave}>
+          <Button variant="contained" color="primary" onClick={handleMailSave}>
             Save
           </Button>
         </DialogActions>

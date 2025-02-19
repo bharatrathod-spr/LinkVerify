@@ -29,11 +29,7 @@ const ChangePassword = () => {
           alignItems: "start",
         }}
       >
-        <Typography
-          variant="h5"
-          color="primary"
-          sx={{ fontWeight: "bold" }}
-        >
+        <Typography variant="h5" color="primary" sx={{ fontWeight: "bold" }}>
           Change Password
         </Typography>
       </Box>

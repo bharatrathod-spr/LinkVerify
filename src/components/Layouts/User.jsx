@@ -33,7 +33,7 @@ const User = () => {
 
       <Navbar role={userRole} />
 
-      <Box
+      <Box 
         component="main"
         className="user-main"
         style={

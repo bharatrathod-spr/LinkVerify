@@ -1,10 +1,12 @@
 const MailConfiguration = require("../models/mailConfigModel");
 const AlertSubscription = require("../models/alertModel");
+const { logActivity } = require("../utils/commonUtils");
 
 const createMailConfiguration = async (req, res) => {
   try {
     const existingConfig = await MailConfiguration.findOne({
       User: req.body.User,
+      IsDelete: false,
     });
 
     if (existingConfig) {
@@ -15,6 +17,16 @@ const createMailConfiguration = async (req, res) => {
     }
 
     const userToSave = await MailConfiguration.create(req.body);
+
+    await logActivity(
+      req.body.User,
+      "CREATE",
+      "MAIL_CONFIGURATION",
+      userToSave.MailConfigurationId,
+      "POST",
+      { NewData: userToSave },
+      "user"
+    );
 
     return res.status(201).json({
       statusCode: 201,
@@ -165,6 +177,18 @@ const updateMailConfiguration = async (req, res) => {
       });
     }
 
+    await logActivity(
+      req.user.UserId,
+      "UPDATE",
+      "MAIL_CONFIGURATION",
+      MailConfigurationId,
+      "PATCH",
+      {
+        NewData: { Host, Port, User, Mail },
+      },
+      "user"
+    );
+
     return res.status(200).json({
       statusCode: 200,
       message: "Mail Details updated successfully",
@@ -181,24 +205,48 @@ const updateMailConfiguration = async (req, res) => {
 
 const deleteMailConfiguration = async (req, res) => {
   const { MailConfigurationId } = req.params;
-  const data = await MailConfiguration.findOneAndUpdate(
-    { MailConfigurationId },
-    { $set: { IsDelete: true } },
-    { new: true }
-  );
 
-  if (!data) {
-    return {
-      statusCode: 404,
-      message: `No Mail Details found for MailConfigurationId: ${MailConfigurationId}`,
-    };
+  try {
+    const data = await MailConfiguration.findOneAndUpdate(
+      { MailConfigurationId },
+      { $set: { IsDelete: true } },
+      { new: true }
+    );
+
+    if (!data) {
+      return res.status(404).json({
+        statusCode: 404,
+        message: `No Mail Details found for MailConfigurationId: ${MailConfigurationId}`,
+      });
+    }
+
+    await AlertSubscription.updateMany(
+      { MailConfigurationId },
+      { $set: { MailConfigurationId: null } }
+    );
+
+    await logActivity(
+      req.user.UserId,
+      "DELETE",
+      "MAIL_CONFIGURATION",
+      MailConfigurationId,
+      "DELETE",
+      {},
+      "user"
+    );
+
+    return res.status(200).json({
+      statusCode: 200,
+      message: `Mail Details marked as deleted successfully, and related alerts updated`,
+      deletedItem: data,
+    });
+  } catch (error) {
+    console.error(error.message);
+    return res.status(500).json({
+      statusCode: 500,
+      message: "Something went wrong, please try later!",
+    });
   }
-
-  return {
-    statusCode: 200,
-    message: `Mail Details marked as deleted successfully`,
-    deletedItem: data,
-  };
 };
 
 module.exports = {

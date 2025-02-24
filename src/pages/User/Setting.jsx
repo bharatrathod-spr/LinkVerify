@@ -72,7 +72,11 @@ const Settings = () => {
         setAlertToUnsubscribe(key);
         setOpenConfirmModal(true);
       } else {
-        await toggleSubscriptionAndProceed(key);
+        if (key === "Email" && !selectedMailConfig) {
+          setOpenMailModal(true);
+        } else {
+          await toggleSubscriptionAndProceed(key);
+        }
       }
     }
   };
@@ -125,6 +129,12 @@ const Settings = () => {
         error || `Failed to update frequency for ${key}. Please try again.`
       );
     }
+  };
+
+  const handleMailConfigSave = async (configId) => {
+    setSelectedMailConfig(configId);
+    setOpenMailModal(false);
+    await toggleSubscriptionAndProceed("Email");
   };
 
   return (
@@ -315,6 +325,9 @@ const Settings = () => {
         handleClose={() => setOpenMailModal(false)}
         selectedMailConfig={selectedMailConfig}
         setSelectedMailConfig={setSelectedMailConfig}
+        onSave={handleMailConfigSave}
+        subscriptionState={subscriptionState}
+        setSubscriptionState={setSubscriptionState}
       />
 
       <Dialog open={openConfirmModal} onClose={handleCancelUnsubscribe}>
@@ -325,10 +338,10 @@ const Settings = () => {
           </Typography>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleCancelUnsubscribe} color="primary">
+          <Button onClick={handleCancelUnsubscribe} color="secondary">
             Cancel
           </Button>
-          <Button onClick={handleConfirmUnsubscribe} color="secondary">
+          <Button onClick={handleConfirmUnsubscribe} color="primary">
             Confirm
           </Button>
         </DialogActions>

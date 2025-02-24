@@ -40,8 +40,6 @@ const mailConfigSlice = createSlice({
       .addCase(fetchMailTable.fulfilled, (state, action) => {
         state.loading = false;
         state.selectedMailConfig = action.payload?.[0] || null;
-        
-        console.log(state.selectedMailConfig, "state.selectedMailConfig");
       })
       .addCase(fetchMailTable.rejected, (state, action) => {
         state.loading = false;

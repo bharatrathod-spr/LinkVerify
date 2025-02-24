@@ -87,7 +87,7 @@ const UserForm = ({ initialValues, onClose, handleSubmit, id }) => {
       onSubmit={handleSubmit}
       onClose={onClose}
     />
-  );
+  ); 
 };
 
 const ChangePasswordForm = ({ initialValues, onClose, handleSubmit, id }) => {

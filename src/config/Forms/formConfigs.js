@@ -10,7 +10,7 @@ import {
 import * as Yup from "yup";
 
 const passwordValidationSchema = Yup.string()
-  .required("Password is required")
+  .required("Current Password is required")
   .min(12, "Password must be at least 12 characters long")
   .matches(/[A-Z]/, `Password must contain at least one uppercase letter`)
   .matches(/[a-z]/, `Password must contain at least one lowercase letter`)
@@ -60,55 +60,119 @@ const signup = {
   fields: [
     {
       name: "FirstName",
-      label: "First Name",
+      label: "First Name*",
       type: "text",
       placeholder: "Enter first name",
-      grid: 12,
+      grid: 3,
       icon: Person,
     },
     {
       name: "LastName",
-      label: "Last Name",
+      label: "Last Name*",
       type: "text",
       placeholder: "Enter last name",
-      grid: 12,
+      grid: 3,
       icon: Person,
     },
     {
+      name: "UserDetails.Address",
+      label: "Address*",
+      type: "text",
+      placeholder: "Enter Your Address",
+      grid: 6,
+      icon: Home,
+    },
+
+    {
+      name: "PhoneNumber",
+      label: "Phone Number*",
+      type: "text",
+      placeholder: "Enter Your Phone Number",
+      grid: 3,
+      icon: Phone,
+    },
+    {
       name: "EmailAddress",
-      label: "Email",
+      label: "Email*",
       type: "email",
       placeholder: "Enter Email Address",
-      grid: 12,
+      grid: 3,
       icon: Email,
     },
     {
+      name: "UserDetails.City",
+      label: "City*",
+      type: "text",
+      placeholder: "Enter Your City",
+      grid: 3,
+      icon: LocationCity,
+    },
+    {
+      name: "UserDetails.State",
+      label: "State*",
+      type: "text",
+      placeholder: "Enter Your State",
+      grid: 3,
+      icon: LocationCity,
+    },
+    {
       name: "Password",
-      label: "Password",
+      label: "Password*",
       type: "password",
       placeholder: "Enter password",
-      grid: 12,
+      grid: 6,
       icon: Lock,
     },
     {
+      name: "UserDetails.PostalCode",
+      label: "PostalCode*",
+      type: "text",
+      placeholder: "Enter Your Postal Code",
+      grid: 3,
+      icon: Home,
+    },
+    {
+      name: "UserDetails.Country",
+      label: "Country*",
+      type: "text",
+      placeholder: "Enter Your Country",
+      grid: 3,
+      icon: Public,
+    },
+    {
       name: "ConfirmPassword",
-      label: "Confirm Password",
+      label: "Confirm Password*",
       type: "password",
       placeholder: "Re-enter password",
-      grid: 12,
+      grid: 6,
       icon: Lock,
     },
   ],
   validationSchema: Yup.object().shape({
     FirstName: Yup.string().required("First name is required"),
     LastName: Yup.string().required("Last name is required"),
+    PhoneNumber: Yup.string().required("Phone Number is required"),
     EmailAddress: Yup.string()
+      .trim()
+      .lowercase()
+      .matches(
+        /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+        "Invalid email format"
+      )
       .email("Invalid email")
       .required("Email is required"),
+
     Password: passwordValidationSchema,
     ConfirmPassword: Yup.string()
       .oneOf([Yup.ref("Password"), null], "Passwords must match")
       .required("Confirm Password is required"),
+    UserDetails: Yup.object({
+      Address: Yup.string().required("Address is required"),
+      City: Yup.string().required("City is required"),
+      State: Yup.string().required("State is required"),
+      Country: Yup.string().required("Country is required"),
+      PostalCode: Yup.string().required("Postal Code is required"),
+    }),
   }),
   buttons: [
     {
@@ -179,20 +243,14 @@ const userProfile = {
       icon: LocationCity,
     },
     {
-      name: "UserDetails.AlternativeEmailAddress",
-      label: "Alternative Email",
-      type: "email",
-      placeholder: "Enter Alternative Email",
+      name: "Spacer",
+      type: "spacer",
       grid: 3,
-      icon: Email,
     },
     {
-      name: "UserDetails.AlternativePhoneNumber",
-      label: "Alternative Phone Number",
-      type: "text",
-      placeholder: "Enter Alternative Phone Number",
+      name: "Spacer",
+      type: "spacer",
       grid: 3,
-      icon: Phone,
     },
     {
       name: "UserDetails.Country",
@@ -215,23 +273,26 @@ const userProfile = {
     FirstName: Yup.string().required("First name is required"),
     LastName: Yup.string().required("Last name is required"),
     EmailAddress: Yup.string()
+      .trim()
+      .lowercase()
+      .matches(
+        /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+        "Invalid email format"
+      )
       .email("Invalid email")
       .required("Email is required"),
+
     PhoneNumber: Yup.string().matches(
       /^\d{10}$/,
       "Phone number must be 10 digits"
     ),
+
     UserDetails: Yup.object({
-      AlternativeEmailAddress: Yup.string().email("Invalid email"),
-      AlternativePhoneNumber: Yup.string().matches(
-        /^\d{10}$/,
-        "Phone number must be 10 digits"
-      ),
-      Address: Yup.string(),
-      City: Yup.string(),
-      State: Yup.string(),
-      Country: Yup.string(),
-      PostalCode: Yup.string(),
+      Address: Yup.string().required("Address is required"),
+      City: Yup.string().required("City is required"),
+      State: Yup.string().required("State is required"),
+      Country: Yup.string().required("Country is required"),
+      PostalCode: Yup.string().required("Postal Code is required"),
     }),
   }),
   buttons: [

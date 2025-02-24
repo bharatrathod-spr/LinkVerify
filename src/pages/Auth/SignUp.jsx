@@ -1,12 +1,19 @@
 import React, { useEffect } from "react";
 
-import { Box, Card, CardContent, Typography, Grid } from "@mui/material";
+import {
+  Box,
+  Card,
+  CardContent,
+  Typography,
+  Grid,
+  Divider,
+} from "@mui/material";
 import { Link, useNavigate } from "react-router-dom";
 
 import { SignUpForm } from "../../config/Forms/Forms";
 import { useAuth } from "../../hooks/useAuth";
 
-import SignUpImage from "../../assets/svg/SignupImage.png";
+import SignUpImage from "../../assets/svg/SignUpImage.svg";
 
 const SignUp = () => {
   const { loading, token, user } = useAuth();
@@ -31,19 +38,30 @@ const SignUp = () => {
         padding: 2,
       }}
     >
-      <Card sx={{ display: "flex", maxWidth: 800, borderRadius: 3 }}>
-        <Box sx={{ display: { xs: "none", md: "block" }, width: "50%" }}>
+      <Card sx={{ display: "flex", maxWidth: 1400, borderRadius: 3 }}>
+        <Box
+          sx={{
+            display: { xs: "none", md: "flex" },
+            width: "28%",
+            justifyContent: "center",
+            alignItems: "flex-start",
+            flexDirection: "column",
+            // paddingTop: 2,
+          }}
+        >
           <img
             src={SignUpImage}
             alt="Sign Up"
             style={{
-              width: "100%",
-              height: "100%",
+              width: "450px",
+              // height: "100%",
               objectFit: "contain",
               borderRadius: "12px 0 0 12px",
+              alignSelf: "flex-start",
             }}
           />
         </Box>
+        <Divider orientation="vertical" flexItem />
 
         <Box sx={{ flex: 1, padding: 4 }}>
           <CardContent>

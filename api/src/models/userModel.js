@@ -48,7 +48,7 @@ const userSchema = new Schema(
 
     UserDetails: {
       type: Object,
-      required: false,
+      required: true,
     },
 
     CreatedBy: {

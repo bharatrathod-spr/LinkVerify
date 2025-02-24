@@ -128,7 +128,13 @@ const Navbar = ({ role }) => {
               {user?.FirstName?.charAt(0).toUpperCase()}
               {user?.LastName?.charAt(0).toUpperCase()}
             </Avatar>
-            <Box sx={{ display: "flex", flexDirection: "column" }}>
+
+            <Box
+              sx={{
+                display: { xs: "none", sm: "flex" },
+                flexDirection: "column",
+              }}
+            >
               <Typography variant="body1" sx={{ fontWeight: "bold" }}>
                 {user?.FirstName} {user?.LastName}
               </Typography>

@@ -12,7 +12,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { LoginForm } from "../../config/Forms/Forms";
 import { useAuth } from "../../hooks/useAuth";
 
-import LoginImage from "../../assets/svg/LoginImage.png";
+import LoginImage from "../../assets/svg/resetpass.svg";
 
 const Login = () => {
   const { token, user, logout, loading } = useAuth();
@@ -85,7 +85,26 @@ const Login = () => {
             <Box mt={3} mb={2}>
               <LoginForm loading={loading} />
             </Box>
-
+            <Box>
+              <Typography
+                variant="body2"
+                component={Link}
+                to="/auth/forgot-password"
+                align="center"
+                sx={{
+                  color: "#555",
+                  textAlign: "center",
+                  mt: 2,
+                  textDecoration: "none",
+                  "&:hover": {
+                    color: "#000",
+                    textDecoration: "underline",
+                  },
+                }}
+              >
+                Forgot Password?
+              </Typography>
+            </Box>
             <Typography
               variant="body2"
               component={Link}

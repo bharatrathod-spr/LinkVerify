@@ -182,6 +182,36 @@ const userSlice = createSlice({
         state.loading = false;
         state.error =
           action.payload || "Something is wrong! Please try after sometime.";
+      })
+      .addCase("user/forgotPasswordStart", (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase("user/forgotPasswordSuccess", (state, action) => {
+        state.loading = false;
+        state.isAuthenticated = true;
+        state.user = action.payload.user;
+      })
+      .addCase("user/forgotPasswordFailure", (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+        state.isAuthenticated = false;
+      })
+
+      // Reset Password
+      .addCase("user/resetPasswordStart", (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase("user/resetPasswordSuccess", (state, action) => {
+        state.loading = false;
+        state.isAuthenticated = true;
+        state.user = action.payload.user;
+      })
+      .addCase("user/resetPasswordFailure", (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+        state.isAuthenticated = false;
       });
   },
 });

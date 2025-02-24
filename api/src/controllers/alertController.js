@@ -10,16 +10,34 @@ const { sendSlackNotificationToUser } = require("../Helpers/SlackHelper");
 const AlertSubscription = require("../models/alertModel");
 const sendFailureReasonsMail = require("../Helpers/EmailHelper");
 const MailConfiguration = require("../models/mailConfigModel");
+const { logActivity } = require("../utils/commonUtils");
 
 // ===== CREATE ALERT =====
 const createAlert = async (data) => {
   try {
-    await createAlertData(data);
+    const { UserId } = data;
+    const newAlert = await createAlertData(data);
+
+    const profile = newAlert.alert;
+
+    await logActivity(
+      UserId,
+      "CREATE",
+      "ALERT SUBSCRIPTION",
+      profile.AlertId,
+      "POST",
+      {
+        NewData: profile,
+      },
+      "user"
+    );
+
     return {
       success: true,
       statusCode: 201,
     };
   } catch (error) {
+    console.error("Error in creating alert:", error);
     return {
       success: false,
       statusCode: 500,
@@ -157,6 +175,18 @@ const updateAlerts = async (req, res, next) => {
 
     const updatedAlerts = await updateAlertsByUserId(UserId, Alerts);
 
+    if (updatedAlerts) {
+      await logActivity(
+        UserId,
+        "UPDATE",
+        "ALERT SUBSCRIPTION",
+        updatedAlerts.AlertId,
+        "PATCH",
+        { OldData: req.body, NewData: updatedAlerts },
+        "user"
+      );
+    }
+
     return res.status(updatedAlerts ? 200 : 404).json({
       success: !!updatedAlerts,
       data: updatedAlerts || null,
@@ -185,6 +215,19 @@ const addMailConfiguration = async (req, res) => {
       { UserId },
       { $set: { MailConfigurationId: mailConfigId } },
       { new: true, upsert: true }
+    );
+
+    await logActivity(
+      UserId,
+      "UPDATE",
+      "ALERT SUBSCRIPTION",
+      updatedAlert.AlertId,
+      "PATCH",
+      {
+        OldData: { MailConfigurationId: updatedAlert.MailConfigurationId },
+        NewData: { MailConfigurationId: mailConfigId },
+      },
+      "user"
     );
 
     return res.status(200).json({
@@ -240,6 +283,19 @@ const toggleSubscription = async (req, res, next) => {
         message: "Failed to update subscription",
       });
     }
+
+    await logActivity(
+      UserId,
+      "UPDATE",
+      "ALERT SUBSCRIPTION",
+      updatedAlert.AlertId,
+      "PATCH",
+      {
+        OldData: { Subscriber: currentAlert.Subscriber },
+        NewData: { Subscriber: newSubscriberStatus },
+      },
+      "user"
+    );
 
     return res.status(200).json({
       success: true,

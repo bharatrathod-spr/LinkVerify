@@ -289,7 +289,6 @@ const getSuperUserDashboardData = async (req, res) => {
 //SignUp
 const createUser = async (req, res) => {
   try {
-
     const existingUser = await findUserByEmail(req.body.EmailAddress);
     if (existingUser) {
       return res.status(400).json({ error: "Email address already exists" });
@@ -464,14 +463,48 @@ const forgotPassword = async (req, res) => {
 
     const resetToken = generateToken({ UserId: user.UserId });
 
-    const resetLink = `https://example.com/reset-password?token=${resetToken}`;
-    await sendEmail(
-      EmailAddress,
-      "Password Reset",
-      `You requested a password reset. Click the link to reset: ${resetLink}`
-    );
+    const resetLink = `http://localhost:3000/auth/reset-password?token=${resetToken}`;
 
-    // Log the activity
+    const emailHTML = `
+    <div style="font-family: Arial, sans-serif; text-align: center; padding: 30px; background-color: #f8f9fa;">
+      <div style="max-width: 600px; margin: auto; background-color: #ffffff; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+        <h2 style="color: #333; font-size: 24px; margin-bottom: 15px;">Password Reset Request</h2>
+        <p style="font-size: 16px; color: #555; line-height: 1.5; margin-bottom: 20px;">We received a request to reset your password. Please click the button below to reset it.</p>
+        
+        <a href="${resetLink}" style="
+          display: inline-block;
+          padding: 12px 25px;
+          font-size: 18px;
+          color: #ffffff;
+          background-color: #5951da;
+          text-decoration: none;
+          border-radius: 5px;
+          font-weight: bold;
+          transition: background-color 0.3s ease;
+        ">Reset Password</a>
+        
+        <p style="font-size: 14px; color: #777; margin-top: 20px;">If you did not request this, please ignore this email.</p>
+             <footer style="text-align: center; font-size: 12px; color: #aaa; margin-top: 30px;">
+            ©${new Date().getFullYear()}. All rights reserved.
+          </footer>
+      </div>
+    </div>
+  `;
+
+    try {
+      await sendEmail(
+        EmailAddress,
+        "Password Reset",
+        "Click the link below to reset your password.",
+        emailHTML
+      );
+
+      console.log("Email sent successfully");
+    } catch (error) {
+      console.error("Error sending email:", error.message);
+      throw error;
+    }
+
     await logActivity(
       user.UserId,
       "FORGOT_PASSWORD",
@@ -479,7 +512,7 @@ const forgotPassword = async (req, res) => {
       user.UserId,
       "POST",
       { email: EmailAddress, resetLink },
-      "system"
+      "user"
     );
 
     res
@@ -490,13 +523,24 @@ const forgotPassword = async (req, res) => {
   }
 };
 
-// Reset Password Controller
 const resetPassword = async (req, res) => {
   const { Token, Password } = req.body;
 
   try {
     const decoded = verifyToken(Token);
     const userId = decoded.UserId;
+
+    const user = await getUserById(userId);
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    const isSamePassword = await comparePassword(Password, user.Password);
+    if (isSamePassword) {
+      return res.status(400).json({
+        error: "New password cannot be the same as the current password.",
+      });
+    }
 
     const hashedPassword = await hashPassword(Password);
 
@@ -514,7 +558,7 @@ const resetPassword = async (req, res) => {
 
     res.status(200).json({ message: "Password reset successfully" });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ error: "Internal server error" });
   }
 };
 

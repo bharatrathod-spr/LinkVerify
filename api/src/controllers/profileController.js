@@ -25,9 +25,8 @@ const getProfiles = async (req, res) => {
 
 // Get profile
 const getProfile = async (req, res) => {
-  const { profileId } = req.params; // Get the profileId from the request params
+  const { profileId } = req.params;
   try {
-    // Get the profile by ID
     const profile = await getProfileById(profileId, { IsDelete: false });
 
     if (!profile) {
@@ -41,7 +40,6 @@ const getProfile = async (req, res) => {
 };
 
 // Get profile logs
-
 const getProfileLogs = async (req, res) => {
   const { profileId } = req.params;
 
@@ -120,9 +118,9 @@ const createProfile = async (req, res) => {
 
     // Log the activity
     await logActivity(
-      req.body.UserId,
+      req.user.UserId,
       "CREATE",
-      "Profile",
+      "Audit Profile",
       profile.ValidationProfileId,
       "POST",
       {
@@ -138,29 +136,23 @@ const createProfile = async (req, res) => {
 
 // Update profile (partial update)
 const updateProfile = async (req, res) => {
-  const { profileId } = req.params; // Get the profileId from the request params
+  const { profileId } = req.params;
   try {
-    // Get the profile by ID
     const profile = await getProfileById(profileId);
 
     if (!profile) {
       return res.status(404).json({ error: "Profile not found" });
     }
-
-    // Update fields if provided in request body
     const updatedProfileData = { ...req.body };
-
-    // Update the profile in the database (only updates the fields provided)
     const updatedProfile = await updateProfileById(
       profileId,
       updatedProfileData
     );
 
-    // Log the activity
     await logActivity(
       req.user.UserId,
       "UPDATE",
-      "Profile",
+      "Audit Profile",
       profileId,
       "PATCH",
       {
@@ -177,16 +169,14 @@ const updateProfile = async (req, res) => {
 
 // Delete profile (soft delete)
 const deleteProfile = async (req, res) => {
-  const { profileId } = req.params; // Get the profileId from the request params
+  const { profileId } = req.params;
   try {
-    // Get the profile by ID
     const profile = await getProfileById(profileId);
 
     if (!profile) {
       return res.status(404).json({ error: "Profile not found" });
     }
 
-    // Mark the profile as deleted (soft delete)
     const deletedProfile = await deleteProfileById(profileId);
 
     await profileCountModel.updateMany(
@@ -198,7 +188,7 @@ const deleteProfile = async (req, res) => {
     await logActivity(
       req.user.UserId,
       "DELETE",
-      "Profile",
+      "Audit Profile",
       profileId,
       "DELETE",
       {

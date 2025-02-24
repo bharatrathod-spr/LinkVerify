@@ -96,7 +96,7 @@ const DynamicForm = ({
                   sm={field.grid || 12}
                   key={field.name}
                 ></Grid>
-              ) : (
+              ) : ( 
                 <Grid item xs={12} sm={field.grid || 12} key={field.name}>
                   <Field name={field.name}>
                     {({ field: formikField }) =>

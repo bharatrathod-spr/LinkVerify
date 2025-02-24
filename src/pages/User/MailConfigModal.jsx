@@ -33,7 +33,7 @@ const MailConfigModal = ({ open, handleClose, userId, configId }) => {
     User: "",
     Password: "",
     Mail: "",
-    UserId: user.UserId,
+    UserId: user ? user.UserId : "",
   });
 
   const [errors, setErrors] = useState({

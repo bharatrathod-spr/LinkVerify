@@ -48,7 +48,10 @@ export const signUpUser = createAsyncThunk(
   async (credentials, { rejectWithValue }) => {
     try {
       const response = await axiosInstance.post("/users", credentials);
-      toast.success(response.data.message || "Sign-up successful!", toastOptions);
+      toast.success(
+        response.data.message || "Sign-up successful!",
+        toastOptions
+      );
 
       return response.data;
     } catch (error) {
@@ -65,7 +68,10 @@ export const createUser = createAsyncThunk(
         ...createuser,
         CreatedBy: "super_user",
       });
-      toast.success(response.data.message || "User added successfully", toastOptions);
+      toast.success(
+        response.data.message || "User added successfully",
+        toastOptions
+      );
 
       return response.data;
     } catch (error) {
@@ -161,5 +167,47 @@ export const updatePassword = async (formData, userId) => {
     toast.error(errorMessage);
 
     throw errorMessage;
+  }
+};
+
+export const forgotPassword = (email) => async (dispatch) => {
+  dispatch({ type: "user/forgotPasswordStart" });
+
+  try {
+    const response = await axiosInstance.post(`/users/forgot-password`, {
+      EmailAddress: email,
+    });
+
+    dispatch({ type: "user/forgotPasswordSuccess", payload: response.data });
+  } catch (error) {
+    const errorMessage =
+      error.response?.data?.error || "Failed to send reset email";
+    toast.error(errorMessage);
+
+    // dispatch({ type: "user/forgotPasswordFailure", payload: errorMessage });
+    throw new Error(errorMessage);
+  }
+};
+
+export const resetPassword = (token, password) => async (dispatch) => {
+  dispatch({ type: "user/resetPasswordStart" });
+
+  try {
+    const response = await axiosInstance.post(`/users/reset-password`, {
+      Token: token,
+      Password: password,
+    });
+
+    toast.success(response.data.message);
+    dispatch({ type: "user/resetPasswordSuccess", payload: response.data });
+
+    return response.data;
+  } catch (error) {
+    const errorMessage =
+      error.response?.data?.error || "Failed to reset password";
+    toast.error(errorMessage);
+
+    // dispatch({ type: "user/resetPasswordFailure", payload: errorMessage });
+    throw new Error(errorMessage);
   }
 };

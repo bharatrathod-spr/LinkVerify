@@ -34,20 +34,26 @@ const comparePassword = async (password, hashedPassword) => {
 };
 
 // Send Email Utility
-const sendEmail = async (to, subject, text) => {
+const sendEmail = async (to, subject, text = "", htmlContent = "") => {
   const transporter = nodemailer.createTransport({
-    service: "gmail",
+    host: process.env.EMAIL_HOST,
+    port: process.env.EMAIL_PORT,
+    secure: true,
     auth: {
-      user: process.env.EMAIL_USER || "your-email@gmail.com",
-      pass: process.env.EMAIL_PASS || "your-email-password",
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS,
+    },
+    tls: {
+      rejectUnauthorized: false,
     },
   });
 
   const mailOptions = {
-    from: "no-reply@example.com",
+    from: `"LinkVerify" <${process.env.EMAIL_USER}>`,
     to,
     subject,
-    text,
+    text: text,
+    html: htmlContent,
   };
 
   await transporter.sendMail(mailOptions);

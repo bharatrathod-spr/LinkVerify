@@ -30,6 +30,24 @@ const routes = [
         keywords:
           "sign up, create account, SEO tools, register SEO Link Validator",
       },
+      {
+        title: "Forget Password",
+        path: "forgot-password",
+        component: pages.ForgotPassword,
+        description:
+          "Create a new account on SEO Link Validator. Sign up to enhance your website's link validation and SEO optimization.",
+        keywords:
+          "sign up, create account, SEO tools, register SEO Link Validator",
+      },
+      {
+        title: "Reset Password",
+        path: "reset-password",
+        component: pages.ResetPassword,
+        description:
+          "Create a new account on SEO Link Validator. Sign up to enhance your website's link validation and SEO optimization.",
+        keywords:
+          "sign up, create account, SEO tools, register SEO Link Validator",
+      },
     ],
   },
   {

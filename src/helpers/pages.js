@@ -12,6 +12,8 @@ const UserActivities = lazy(() => import("../pages/User/ActivityTable"));
 const Setting = lazy(() => import("../pages/User/Setting"));
 const ChangePassword = lazy(() => import("../pages/User/ChangePassword"));
 const MailConfiguration = lazy(() => import("../pages/User/MailConfiguration"));
+const ForgotPassword = lazy(() => import("../pages/User/ForgotPassword"));
+const ResetPassword = lazy(() => import("../pages/User/ResetPassword"));
 
 const SuperUserDashboard = lazy(() =>
   import("../pages/SuperUser/SuperUserDashboard")
@@ -35,6 +37,8 @@ const pages = {
   Setting,
   MailConfiguration,
   ChangePassword,
+  ResetPassword,
+  ForgotPassword,
 };
 
 export default pages;

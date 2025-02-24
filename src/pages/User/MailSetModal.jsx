@@ -18,7 +18,10 @@ import {
   Paper,
 } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchMailTable } from "../../actions/mailConfigActions";
+import {
+  fetchMailConfig,
+  fetchMailTable,
+} from "../../actions/mailConfigActions";
 import { toast } from "react-toastify";
 import { useAuth } from "../../hooks/useAuth";
 import useMailConfig from "../../hooks/useMail";
@@ -26,10 +29,13 @@ import MailConfigModal from "./MailConfigModal";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { AddCircleOutline } from "@mui/icons-material";
-import { updateMailConfig } from "../../actions/settingActions";
+import {
+  updateMailConfig,
+  toggleSubscription,
+} from "../../actions/settingActions";
 import Tooltip from "@mui/material/Tooltip";
 
-const MailSetModal = ({ open, handleClose }) => {
+const MailSetModal = ({ open, handleClose, setSubscriptionState }) => {
   const dispatch = useDispatch();
   const { user } = useAuth();
   const userId = user?.UserId || "";
@@ -40,13 +46,18 @@ const MailSetModal = ({ open, handleClose }) => {
   const [selectedConfigId, setSelectedConfigId] = useState("");
   const [isMailConfigModalOpen, setIsMailConfigModalOpen] = useState(false);
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
-  const [filteredConfigs, setFilteredConfigs] = useState([]);
 
   useEffect(() => {
     if (open && userId) {
       dispatch(fetchMailTable(userId));
     }
   }, [open, userId, dispatch]);
+
+  useEffect(() => {
+    if (mailConfigList.length > 0) {
+      setSelectedConfigId(mailConfigList[0].MailConfigurationId);
+    }
+  }, [mailConfigList]);
 
   const handleRadioChange = (configId) => {
     setSelectedConfigId(configId);
@@ -61,27 +72,26 @@ const MailSetModal = ({ open, handleClose }) => {
     try {
       await dispatch(updateMailConfig({ selectedConfigId }));
       toast.success("Mail configuration updated successfully.");
+
+      await dispatch(toggleSubscription("email"));
+
+      toast.success("Subscription successful!");
+
+      setSubscriptionState((prev) => ({ ...prev, Email: true }));
+
       handleClose();
     } catch (error) {
-      toast.error("Failed to update mail configuration.");
+      toast.error("Failed to update mail configuration or subscribe.");
     }
   };
 
   const handleDelete = async () => {
     try {
       setIsDeleteConfirmOpen(false);
-      toast.success("Mail configuration deleted successfully!");
-      setFilteredConfigs((prev) =>
-        prev.filter((config) => config.MailConfigurationId !== selectedConfigId)
-      );
       await handleDeleteMailConfig(selectedConfigId);
+      dispatch(fetchMailConfig(userId));
     } catch (error) {
-      setFilteredConfigs(mailConfigList);
-      toast.error(
-        error.response?.data?.message ||
-          "Failed to delete the mail configuration. Please try again.",
-        { autoClose: 5000 }
-      );
+      toast.error("Failed to delete the mail configuration. Please try again.");
     }
   };
 

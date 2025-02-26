@@ -110,19 +110,35 @@ const MailConfigModal = ({ open, handleClose, userId, configId }) => {
     <Modal open={open} onClose={handleClose}>
       <Box
         sx={{
-          p: 4,
+          p: { xs: 3, sm: 4 },
           backgroundColor: "white",
-          width: 450,
-          margin: "auto",
-          mt: 10,
+          width: { xs: "90%", sm: 450 }, 
+          maxWidth: "450px",
+          position: "absolute",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)", 
           borderRadius: 3,
           boxShadow: 3,
         }}
       >
-        <Typography variant="h5" sx={{ fontWeight: "bold", mb: 2 }}>
+        <Typography
+          variant="h6"
+          sx={{
+            fontWeight: "bold",
+            mb: 2,
+            fontSize: { xs: "16px", sm: "20px" }, 
+          }}
+        >
           {configId ? "Edit Mail Configuration" : "Add Mail Configuration"}
         </Typography>
-        <Typography variant="body2" sx={{ color: "text.secondary" }}>
+        <Typography
+          variant="body2"
+          sx={{
+            color: "text.secondary",
+            fontSize: { xs: "12px", sm: "14px" },
+          }}
+        >
           Set your SMTP Mail Configuration settings here.
         </Typography>
 
@@ -135,11 +151,7 @@ const MailConfigModal = ({ open, handleClose, userId, configId }) => {
           onChange={handleChange}
           error={!!errors.Host}
           helperText={errors.Host}
-          sx={{
-            "& .MuiOutlinedInput-root": {
-              borderRadius: 2,
-            },
-          }}
+          sx={{ "& .MuiOutlinedInput-root": { borderRadius: 2 } }}
         />
         <TextField
           label="Port"
@@ -150,12 +162,9 @@ const MailConfigModal = ({ open, handleClose, userId, configId }) => {
           onChange={handleChange}
           error={!!errors.Port}
           helperText={errors.Port}
-          sx={{
-            "& .MuiOutlinedInput-root": {
-              borderRadius: 2,
-            },
-          }}
+          sx={{ "& .MuiOutlinedInput-root": { borderRadius: 2 } }}
         />
+
         <FormControlLabel
           control={
             <Checkbox
@@ -163,14 +172,14 @@ const MailConfigModal = ({ open, handleClose, userId, configId }) => {
               onChange={handleChange}
               name="Secure"
               sx={{
-                "& .MuiSvgIcon-root": {
-                  fontSize: 22,
-                },
+                "& .MuiSvgIcon-root": { fontSize: { xs: "20px", sm: "22px" } },
               }}
             />
           }
           label="Secure Connection (SSL)"
+          sx={{ fontSize: { xs: "12px", sm: "14px" } }}
         />
+
         <TextField
           label="Mail"
           name="Mail"
@@ -180,11 +189,7 @@ const MailConfigModal = ({ open, handleClose, userId, configId }) => {
           onChange={handleChange}
           error={!!errors.Mail}
           helperText={errors.Mail}
-          sx={{
-            "& .MuiOutlinedInput-root": {
-              borderRadius: 2,
-            },
-          }}
+          sx={{ "& .MuiOutlinedInput-root": { borderRadius: 2 } }}
         />
         <TextField
           label="User"
@@ -195,12 +200,9 @@ const MailConfigModal = ({ open, handleClose, userId, configId }) => {
           onChange={handleChange}
           error={!!errors.User}
           helperText={errors.User}
-          sx={{
-            "& .MuiOutlinedInput-root": {
-              borderRadius: 2,
-            },
-          }}
+          sx={{ "& .MuiOutlinedInput-root": { borderRadius: 2 } }}
         />
+
         <TextField
           label="Password"
           name="Password"
@@ -223,11 +225,7 @@ const MailConfigModal = ({ open, handleClose, userId, configId }) => {
               </InputAdornment>
             ),
           }}
-          sx={{
-            "& .MuiOutlinedInput-root": {
-              borderRadius: 2,
-            },
-          }}
+          sx={{ "& .MuiOutlinedInput-root": { borderRadius: 2 } }}
         />
 
         <Button
@@ -239,6 +237,8 @@ const MailConfigModal = ({ open, handleClose, userId, configId }) => {
           sx={{
             mt: 3,
             borderRadius: 2,
+            fontSize: { xs: "14px", sm: "16px" }, 
+            padding: { xs: "8px", sm: "12px" },
           }}
         >
           {loading ? "Saving..." : configId ? "Update" : "Save"}

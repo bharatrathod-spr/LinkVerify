@@ -96,7 +96,6 @@ async function seoAndLinkValidate(url, searchUrl, UserId, ValidationProfileId) {
   let failureReasons = [];
 
   try {
-    console.log(`Validating URL: ${url} | Searching for: ${searchUrl}`);
     const response = await axios.get(url, {
       headers: {
         "User-Agent":
@@ -108,8 +107,6 @@ async function seoAndLinkValidate(url, searchUrl, UserId, ValidationProfileId) {
       timeout: 10000,
       maxRedirects: 5,
     });
-
-    console.log(`Response Status: ${response.status}`);
 
     if (response.status !== 200) {
       failureReasons.push(`HTTP error: ${response.status}`);
@@ -153,15 +150,13 @@ async function seoAndLinkValidate(url, searchUrl, UserId, ValidationProfileId) {
     const robotsTxtUrl = new URL("/robots.txt", url).toString();
     try {
       const robotsTxtResponse = await axios.get(robotsTxtUrl);
-      console.log(`Fetched robots.txt from: ${robotsTxtUrl}`);
-      console.log("robots.txt Content:", robotsTxtResponse.data);
+
       const robots = robotsParser(robotsTxtUrl, robotsTxtResponse.data);
       if (!robots.isAllowed(url)) {
         failureReasons.push("URL is disallowed by robots.txt");
         success = false;
       }
     } catch (err) {
-      console.log("Robots.txt not found or inaccessible.");
       failureReasons.push("Robots.txt not found or inaccessible.");
     }
 
@@ -181,7 +176,7 @@ async function seoAndLinkValidate(url, searchUrl, UserId, ValidationProfileId) {
       LastErrorAt: success ? null : new Date().toISOString(),
       LastSuccessAt: success ? new Date().toISOString() : null,
     });
-
+    log(`SEO validation completed for ${url}. Success: ${success}`);
     // Update Profile Count
     await updateProfileCount(
       UserId,
@@ -210,6 +205,7 @@ async function seoAndLinkValidate(url, searchUrl, UserId, ValidationProfileId) {
       LastErrorAt: new Date().toISOString(),
       LastSuccessAt: null,
     });
+    log(`Error validating ${url}: ${error.message}`);
 
     await updateProfileCount(UserId, ValidationProfileId, false, responseTime);
 
@@ -232,13 +228,13 @@ function shouldSendAlert(lastAlertTime, frequency) {
     case "only_one_time":
       return false;
     case "per_minute":
-      return diff >= 57 * 1000;
+      return diff >= 50 * 1000;
     case "per_hour":
-      return diff >= 59 * 60 * 1000;
+      return diff >= 60 * 60 * 1000;
     case "per_5_hours":
-      return diff >= 4.95 * 60 * 60 * 1000;
+      return diff >= 5 * 60 * 60 * 1000;
     case "per_day":
-      return diff >= 23.9 * 60 * 60 * 1000;
+      return diff >= 24 * 60 * 60 * 1000;
     default:
       return true;
   }
@@ -257,13 +253,33 @@ const cronjob = async () => {
     log(`Found ${users.length} active users to process.`);
 
     for (const user of users) {
+      log(`Processing user: ${user.UserId}`);
+      const validateTime = moment()
+        .utc()
+        .startOf("minute")
+        .seconds(0)
+        .milliseconds(0)
+        .toDate();
+
+      log(`Validation time set to: ${validateTime}`);
+
       const profiles = await Profiles.find({
         UserId: user.UserId,
         IsDelete: false,
+        ValidateAt: { $lte: validateTime },
       });
+      log(
+        `Found ${profiles.length} validation profiles for user ${user.UserId}.`
+      );
 
       for (const profile of profiles) {
-        const { SourceLink, SearchLink } = profile;
+        const { SourceLink, SearchLink, CronExpression } = profile;
+        
+        log(`Processing validation profile: ${profile.ValidationProfileId}`);
+
+        log(
+          `Validating SEO for SourceURL: ${SourceLink} and SearchURL: ${SearchLink}`
+        );
 
         const { LastSuccessAt, LastErrorAt, failureReasons } =
           await seoAndLinkValidate(
@@ -272,6 +288,17 @@ const cronjob = async () => {
             user.UserId,
             profile.ValidationProfileId
           );
+
+        log(
+          `SEO validation completed for SourceLink: ${SourceLink} and SearchLink: ${SearchLink}`
+        );
+
+        const cronParts = CronExpression.split(" ");
+        const timeValue = parseInt(cronParts[0]);
+        const timeUnit = cronParts[1];
+
+        let newDate = moment().add(timeValue, timeUnit).utc().startOf("minute");
+        newDate = newDate.seconds(0);
 
         if (failureReasons.length > 0) {
           const alertSettings = await AlertSubscription.findOne({
@@ -314,6 +341,7 @@ const cronjob = async () => {
                   }
                 }
                 await alertSettings.save();
+                log(`Alerts sent successfully!`);
               }
             }
           } else {
@@ -321,8 +349,13 @@ const cronjob = async () => {
           }
         }
 
+        profile.ValidateAt = newDate.toDate();
         profile.LastErrorAt = LastErrorAt;
         profile.LastSuccessAt = LastSuccessAt;
+
+        log(
+          `Saving updated profile with new ValidateAt: ${profile.ValidateAt}`
+        );
         await profile.save();
       }
     }

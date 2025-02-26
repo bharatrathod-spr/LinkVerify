@@ -27,7 +27,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import AddIcon from "@mui/icons-material/Add";
 import SearchIcon from "@mui/icons-material/Search";
-
+ 
 const MailConfiguration = () => {
   const { mailConfigList, handleDeleteMailConfig } = useMailConfig();
   const { user } = useAuth();

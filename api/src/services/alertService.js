@@ -14,12 +14,6 @@ const createAlertData = async (data) => {
         LastAlertTime: new Date(),
       },
       {
-        Type: "sms",
-        Subscriber: false,
-        Frequency: "only_one_time",
-        LastAlertTime: new Date(),
-      },
-      {
         Type: "slack",
         Subscriber: false,
         Frequency: "only_one_time",

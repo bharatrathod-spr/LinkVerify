@@ -40,7 +40,6 @@ const Settings = () => {
   const alertMap = {
     Slack: "slack",
     Email: "email",
-    Sms: "sms",
   };
 
   useEffect(() => {
@@ -138,7 +137,13 @@ const Settings = () => {
   };
 
   return (
-    <Box sx={{ padding: 4, margin: "auto" }}>
+    <Box
+      sx={{
+        padding: { xs: 2, sm: 4, md: 5 },
+        maxWidth: "100%",
+        margin: "auto",
+      }}
+    >
       <Typography
         variant="h5"
         color="primary"
@@ -166,9 +171,8 @@ const Settings = () => {
         <Paper
           elevation={6}
           sx={{
-            padding: 4,
-            borderRadius: "12px",
-            boxShadow: "0px 4px 15px rgba(0, 0, 0, 0.1)",
+            padding: { xs: 2, sm: 4 },
+            borderRadius: "10px",
             backgroundColor: "#f9f9f9",
           }}
         >
@@ -183,7 +187,7 @@ const Settings = () => {
                     <TableHead>
                       <TableRow
                         sx={{
-                          backgroundColor: "#f5f5f5",
+                          backgroundColor: "primary.main",
                           borderBottom: "2px solid #e0e0e0",
                         }}
                       >
@@ -191,26 +195,38 @@ const Settings = () => {
                           sx={{
                             fontWeight: "bold",
                             fontSize: "16px",
-                            color: "#333",
+                            color: "#fff",
                           }}
                         >
                           Subscriber Preferences
                         </TableCell>
                         <TableCell
                           align="center"
-                          sx={{ fontWeight: "bold", fontSize: "16px" }}
+                          sx={{
+                            fontWeight: "bold",
+                            fontSize: "16px",
+                            color: "#fff",
+                          }}
                         >
                           Actions
                         </TableCell>
                         <TableCell
                           align="center"
-                          sx={{ fontWeight: "bold", fontSize: "16px" }}
+                          sx={{
+                            fontWeight: "bold",
+                            fontSize: "16px",
+                            color: "#fff",
+                          }}
                         >
                           Frequency
                         </TableCell>
                         <TableCell
                           align="center"
-                          sx={{ fontWeight: "bold", fontSize: "16px" }}
+                          sx={{
+                            fontWeight: "bold",
+                            fontSize: "16px",
+                            color: "#fff",
+                          }}
                         >
                           Mail Configuration
                         </TableCell>
@@ -244,10 +260,11 @@ const Settings = () => {
                                 subscriptionState[key] ? "error" : "success"
                               }
                               sx={{
-                                padding: "8px 20px",
+                                padding: { xs: "6px 12px", sm: "8px 20px" },
                                 textTransform: "none",
                                 borderRadius: "5px",
                                 fontWeight: "bold",
+                                fontSize: { xs: "12px", sm: "14px" },
                               }}
                               onClick={() => handleSubscribeClick(key)}
                             >

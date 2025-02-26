@@ -41,7 +41,11 @@ const UserDashboard = () => {
           Dashboard
         </Typography>
         <Typography variant="body2">
-          Welcome back, {user?.FirstName || "User"} 👋
+          Welcome back,{" "}
+          {user?.FirstName
+            ? `${user.FirstName} ${user.LastName || ""}`
+            : "User"}{" "}
+          👋
         </Typography>
       </Paper>
 

@@ -35,8 +35,6 @@ const ForgotPassword = () => {
         await dispatch(forgotPassword(values.email));
         toast.success("Password reset link sent to your email.");
         navigate("/auth/login");
-      } catch (error) {
-        toast.error(error.response?.data?.error || "Something went wrong.");
       } finally {
         setLoading(false);
       }
@@ -61,7 +59,7 @@ const ForgotPassword = () => {
           width: "100%",
           maxWidth: 900,
           boxShadow: "0px 4px 20px rgba(0, 0, 0, 0.2)",
-        //   background: "rgba(255, 255, 255, 0.1)",
+          //   background: "rgba(255, 255, 255, 0.1)",
           backdropFilter: "blur(10px)",
           color: "#fff",
         }}

@@ -32,6 +32,7 @@ import { AddCircleOutline } from "@mui/icons-material";
 import {
   updateMailConfig,
   toggleSubscription,
+  fetchUserAlerts,
 } from "../../actions/settingActions";
 import Tooltip from "@mui/material/Tooltip";
 
@@ -68,19 +69,27 @@ const MailSetModal = ({ open, handleClose, setSubscriptionState }) => {
       toast.error("Please select a mail configuration.");
       return;
     }
-
     try {
       await dispatch(updateMailConfig({ selectedConfigId }));
-      toast.success("Mail configuration updated successfully.");
+      toast.success("Mail configuration and subscription updated successfully.");
 
-      await dispatch(toggleSubscription("email"));
+      const response = await dispatch(fetchUserAlerts(userId));
 
-      toast.success("Subscription successful!");
+      const userAlerts = response?.payload || {};
 
-      setSubscriptionState((prev) => ({ ...prev, Email: true }));
+      const emailAlert = userAlerts?.Email;
+
+      if (emailAlert && emailAlert.Subscriber === false) {
+        await dispatch(toggleSubscription("email"));
+        // toast.success("Subscription successful!");
+        setSubscriptionState((prev) => ({ ...prev, Email: true }));
+      } else {
+        // console.log("Skipping toggleSubscription, Subscriber is already true.");
+      }
 
       handleClose();
     } catch (error) {
+      console.error("Error in handleMailSave:", error);
       toast.error("Failed to update mail configuration or subscribe.");
     }
   };
@@ -96,6 +105,7 @@ const MailSetModal = ({ open, handleClose, setSubscriptionState }) => {
   };
 
   const handleAddMailConfigClick = () => {
+    setSelectedConfigId("");
     setIsMailConfigModalOpen(true);
   };
 

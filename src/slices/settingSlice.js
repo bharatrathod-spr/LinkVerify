@@ -12,7 +12,6 @@ const initialState = {
   error: null,
   Email: null,
   Slack: null,
-  Sms: null,
 };
 
 const settingSlice = createSlice({
@@ -23,7 +22,6 @@ const settingSlice = createSlice({
       state.alerts = [];
       state.Email = null;
       state.Slack = null;
-      state.Sms = null;
       state.error = null;
       state.loading = false;
     },

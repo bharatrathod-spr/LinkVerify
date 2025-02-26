@@ -7,7 +7,7 @@ const alertSubSchema = new Schema(
     Type: {
       type: String,
       required: true,
-      enum: ["email", "sms", "slack"],
+      enum: ["email", "slack"],
       default: "email",
     },
     Subscriber: {

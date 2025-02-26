@@ -12,13 +12,10 @@ export const fetchUserAlerts = createAsyncThunk(
 
       const email = data.find((item) => item.Type === "email");
 
-      const sms = data.find((item) => item.Type === "sms");
-
       const slack = data.find((item) => item.Type === "slack");
 
       return {
         Email: email,
-        Sms: sms,
         Slack: slack,
       };
     } catch (error) {

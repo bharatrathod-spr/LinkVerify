@@ -466,27 +466,42 @@ const forgotPassword = async (req, res) => {
     const resetLink = `http://localhost:3000/auth/reset-password?token=${resetToken}`;
 
     const emailHTML = `
-    <div style="font-family: Arial, sans-serif; text-align: center; padding: 30px; background-color: #f8f9fa;">
-      <div style="max-width: 600px; margin: auto; background-color: #ffffff; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
-        <h2 style="color: #333; font-size: 24px; margin-bottom: 15px;">Password Reset Request</h2>
-        <p style="font-size: 16px; color: #555; line-height: 1.5; margin-bottom: 20px;">We received a request to reset your password. Please click the button below to reset it.</p>
+    <div style="font-family: 'Arial', sans-serif; background-color: #f4f4f4; padding: 40px 0; text-align: center;">
+      <div style="max-width: 600px; margin: auto; background: #ffffff; padding: 30px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);">
         
+        <img src="https://cdn-icons-png.flaticon.com/512/3064/3064197.png" alt="Password Reset" width="80" style="margin-bottom: 20px;">
+        
+        <h2 style="color: #333; font-size: 24px; font-weight: bold; margin-bottom: 15px;">Reset Your Password</h2>
+        
+        <p style="font-size: 16px; color: #555; line-height: 1.6; margin-bottom: 20px;">
+          We received a request to reset your password. Click the button below to proceed.
+        </p>
+  
         <a href="${resetLink}" style="
           display: inline-block;
-          padding: 12px 25px;
-          font-size: 18px;
+          background: #5951da;
           color: #ffffff;
-          background-color: #5951da;
-          text-decoration: none;
-          border-radius: 5px;
+          font-size: 18px;
           font-weight: bold;
-          transition: background-color 0.3s ease;
-        ">Reset Password</a>
+          padding: 14px 30px;
+          border-radius: 6px;
+          text-decoration: none;
+          margin-top: 15px;
+          box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+          transition: background 0.3s ease;
+        " onmouseover="this.style.opacity=0.9" onmouseout="this.style.opacity=1">
+          Reset Password
+        </a>
+  
+        <p style="font-size: 14px; color: #777; margin-top: 20px;">
+          If you did not request this, please ignore this email. Your password will remain unchanged.
+        </p>
+  
+        <hr style="border: none; border-top: 1px solid #eee; margin: 25px 0;">
         
-        <p style="font-size: 14px; color: #777; margin-top: 20px;">If you did not request this, please ignore this email.</p>
-             <footer style="text-align: center; font-size: 12px; color: #aaa; margin-top: 30px;">
-            ©${new Date().getFullYear()}. All rights reserved.
-          </footer>
+        <footer style="color: #aaa; font-size: 12px;">
+          &copy; ${new Date().getFullYear()} All rights reserved.
+        </footer>
       </div>
     </div>
   `;
@@ -494,12 +509,10 @@ const forgotPassword = async (req, res) => {
     try {
       await sendEmail(
         EmailAddress,
-        "Password Reset",
+        "Password Reset Request",
         "Click the link below to reset your password.",
         emailHTML
       );
-
-      console.log("Email sent successfully");
     } catch (error) {
       console.error("Error sending email:", error.message);
       throw error;

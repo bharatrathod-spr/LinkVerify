@@ -59,15 +59,15 @@ const ProfileDetail = () => {
           onClick={handleBack}
           sx={{
             textTransform: "none",
-            borderRadius: "20px",
+            borderRadius: "5px",
             fontSize: "14px",
             padding: "8px 20px",
             display: "flex",
             alignItems: "center",
             gap: 1,
             "&:hover": {
-              borderColor: "#1976d2",
-              backgroundColor: "#1976d2",
+              borderColor: "#5951da",
+              backgroundColor: "#5951da",
               color: "#fff",
               boxShadow: "0 4px 10px rgba(0, 0, 0, 0.1)",
               transition: "all 0.3s ease",
@@ -232,20 +232,36 @@ const ProfileDetail = () => {
                     >
                       Recent Failure Reasons
                     </Typography>
-                    <Table sx={{ minWidth: 350 }}>
-                      <TableBody>
-                        {selectedProfile.logSummary?.recentFailureReasons.map(
-                          (reason, index) => (
-                            <TableRow key={index}>
-                              <TableCell sx={{ fontWeight: "bold" }}>
-                                Failure #{index + 1}
-                              </TableCell>
-                              <TableCell>{reason.join(", ")}</TableCell>
-                            </TableRow>
-                          )
-                        )}
-                      </TableBody>
-                    </Table>
+
+                    {selectedProfile.logSummary?.recentFailureReasons?.length >
+                    0 ? (
+                      <Table sx={{ minWidth: 350 }}>
+                        <TableBody>
+                          {selectedProfile.logSummary.recentFailureReasons.map(
+                            (reason, index) =>
+                              reason.length > 0 && (
+                                <TableRow key={index}>
+                                  <TableCell sx={{ fontWeight: "bold" }}>
+                                    Failure #{index + 1}
+                                  </TableCell>
+                                  <TableCell>{reason.join(", ")}</TableCell>
+                                </TableRow>
+                              )
+                          )}
+                        </TableBody>
+                      </Table>
+                    ) : (
+                      <Typography
+                        variant="body1"
+                        sx={{
+                          color: "#757575",
+                          textAlign: "center",
+                          padding: 2,
+                        }}
+                      >
+                        No Audit details found.
+                      </Typography>
+                    )}
                   </CardContent>
                 </Card>
               )}

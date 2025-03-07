@@ -1,5 +1,5 @@
 import { Helmet } from "react-helmet-async";
-import logo from "../../assets/svg/logo.png";
+import logo from "../../assets/svg/logo.svg";
 
 const MetaTags = ({
   title = "LinkVerify",

@@ -14,7 +14,7 @@ export const fetchMailConfig = createAsyncThunk(
       return rejectWithValue(errorMessage);
     }
   }
-);
+); 
 
 export const fetchMailTable = createAsyncThunk(
   "mailConfig/fetchMailTable",

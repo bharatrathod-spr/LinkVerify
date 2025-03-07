@@ -43,7 +43,7 @@ const ProfileForm = ({ initialValues, onClose, handleSubmit }) => {
       config={profile}
       onSubmit={handleSubmit}
       initialValues={initialValues}
-      onClose={onClose}
+      onClose={onClose} 
     />
   );
 };

@@ -92,13 +92,17 @@ const ProfileModal = ({ open, onClose, profileId }) => {
             handleSubmit={(values) => {
               const profileData = {
                 ...values,
-                CronExpression: `${values.cronExpression?.occurrence || ""} ${
-                  values.cronExpression?.period || ""
-                }`,
+                CronExpression: values.cronExpression
+                  ? `${values.cronExpression.occurrence} ${values.cronExpression.period}`
+                  : selectedProfile?.CronExpression || "",
               };
+              console.log(selectedProfile, "selectedProfile");
+              console.log(values.cronExpression, "values.cronExpression");
+
               profileId
                 ? handleUpdate(profileId, profileData)
                 : handleCreate(profileData);
+
               onClose();
             }}
           />

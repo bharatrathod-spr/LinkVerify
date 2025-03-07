@@ -7,11 +7,18 @@ import {
   Menu,
   MenuItem,
   Button,
+  ListItemIcon,
 } from "@mui/material";
 import TableLayout from "../../components/Table/TableLayout";
 import Loader from "../../components/Common/Loader";
 import { useAuth } from "../../hooks/useAuth";
-import { MoreVert } from "@mui/icons-material";
+import {
+  AddCircleOutline,
+  Delete,
+  Edit,
+  MoreVert,
+  Update,
+} from "@mui/icons-material";
 import Swal from "sweetalert2";
 import moment from "moment";
 import UserModal from "../../components/Modals/UserModal";
@@ -36,7 +43,6 @@ const mobileHeaderData = [
 const UsersTable = () => {
   const { loading, getUsers, users, handleDelete, handleUserUpdate } =
     useAuth();
-
   useEffect(() => {
     if (!users || !users.length) {
       getUsers();
@@ -73,7 +79,6 @@ const UsersTable = () => {
   // Update user status api with swal
   const updateStatus = async (user) => {
     const currentStatus = user.IsActive === "Active" ? "In Active" : "Active";
-    let reason = "";
 
     const result = await Swal.fire({
       title: `Are you sure?`,
@@ -92,22 +97,17 @@ const UsersTable = () => {
       confirmButtonText: currentStatus === "In Active" ? "In Active" : "Active",
       confirmButtonColor: currentStatus === "In Active" ? "#d33" : "#3085d6",
       cancelButtonText: "Cancel",
-      preConfirm: (inputValue) => {
-        reason = inputValue.trim();
-      },
     });
 
     if (result.isConfirmed) {
       handleUserUpdate(user.UserId, {
         IsActive: !(user.IsActive === "Active"),
-        reason,
+        reason: result.value, 
       });
     }
   };
 
   const deleteUsers = async (user) => {
-    let reason = "";
-
     const result = await Swal.fire({
       title: "Are you sure?",
       text: "Once deleted, you will not be able to recover this user!",
@@ -126,9 +126,6 @@ const UsersTable = () => {
       confirmButtonText: "Delete",
       confirmButtonColor: "#d33",
       cancelButtonText: "Cancel",
-      preConfirm: (inputValue) => {
-        reason = inputValue.trim();
-      },
       dangerMode: true,
     });
 
@@ -153,14 +150,8 @@ const UsersTable = () => {
           menuState.selectedUser?.UserId === user.UserId
         }
         onClose={handleCloseMenu}
-        anchorOrigin={{
-          vertical: "bottom",
-          horizontal: "right",
-        }}
-        transformOrigin={{
-          vertical: "top",
-          horizontal: "right",
-        }}
+        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+        transformOrigin={{ vertical: "top", horizontal: "right" }}
       >
         <MenuItem
           onClick={() => {
@@ -168,7 +159,10 @@ const UsersTable = () => {
             handleCloseMenu();
           }}
         >
-          Update Status
+          <ListItemIcon>
+            <Update fontSize="small" />
+          </ListItemIcon>
+          <Typography variant="inherit">Update Status</Typography>
         </MenuItem>
         <MenuItem
           onClick={() => {
@@ -177,7 +171,10 @@ const UsersTable = () => {
             handleCloseMenu();
           }}
         >
-          Update User
+          <ListItemIcon>
+            <Edit fontSize="small" />
+          </ListItemIcon>
+          <Typography variant="inherit">Update User</Typography>
         </MenuItem>
         <MenuItem
           onClick={() => {
@@ -185,7 +182,10 @@ const UsersTable = () => {
             handleCloseMenu();
           }}
         >
-          Delete User
+          <ListItemIcon>
+            <Delete fontSize="small" />
+          </ListItemIcon>
+          <Typography variant="inherit">Delete User</Typography>
         </MenuItem>
       </Menu>
     </Box>
@@ -200,10 +200,15 @@ const UsersTable = () => {
           alignItems: "start",
         }}
       >
-        <Typography variant="h5" gutterBottom>
+        <Typography variant="h5" color="primary" sx={{ fontWeight: "bold" }}>
           Users
         </Typography>
-        <Button variant="contained" color="primary" onClick={toggleModel}>
+        <Button
+          variant="contained"
+          color="primary"
+          startIcon={<AddCircleOutline />}
+          onClick={toggleModel}
+        >
           Add User
         </Button>
       </Box>
@@ -249,7 +254,13 @@ const UsersTable = () => {
             LastName: userSelect?.LastName || "",
             PhoneNumber: userSelect?.PhoneNumber || "",
             EmailAddress: userSelect?.EmailAddress || "",
+            Address: userSelect?.UserDetails?.Address || "",
+            City: userSelect?.UserDetails?.City || "",
+            Country: userSelect?.UserDetails?.Country || "",
+            PostalCode: userSelect?.UserDetails?.PostalCode || "",
+            State: userSelect?.UserDetails?.State || "",
             UserId: userSelect?.UserId || "",
+            UserDetails: userSelect?.UserDetails || {},
           }}
         />
       )}

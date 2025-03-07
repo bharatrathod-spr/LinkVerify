@@ -92,7 +92,7 @@ const UserDashboard = () => {
             item
             xs={12}
             md={6}
-            sx={{
+            sx={{ 
               animation: isVisible ? "slideUp 0.9s ease-in-out" : "none",
             }}
           >

@@ -24,7 +24,7 @@ import {
 import { styled } from "@mui/system";
 import routes from "../../helpers/routes";
 import { useAuth } from "../../hooks/useAuth";
-import logo from "../../assets/svg/logo.png";
+import logo from "../../assets/svg/logo.svg";
 
 const StyledAppBar = styled(AppBar)({
   boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
@@ -155,7 +155,6 @@ const Navbar = ({ role }) => {
             <MenuRounded />
           </IconButton>
         </Box>
-
         <Menu
           anchorEl={anchorEl}
           open={Boolean(anchorEl)}
@@ -163,72 +162,69 @@ const Navbar = ({ role }) => {
           anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
           transformOrigin={{ vertical: "top", horizontal: "right" }}
         >
-          <MenuItem
-            component={Link}
-            to="/user/profile"
-            onClick={handleCloseMenu}
-            style={{
-              fontWeight: activeRoute === "/user/profile" ? "bold" : "normal",
-              color: activeRoute === "/user/profile" ? "#5951da" : "inherit",
-            }}
-          >
-            <AccountCircleRounded sx={{ marginRight: 1 }} /> Profile
-          </MenuItem>
-          <MenuItem
-            component={Link}
-            to="/user/changepassword"
-            onClick={handleCloseMenu}
-            style={{
-              fontWeight:
-                activeRoute === "/user/changepassword" ? "bold" : "normal",
-              color:
-                activeRoute === "/user/changepassword" ? "#5951da" : "inherit",
-            }}
-          >
-            <LockRounded sx={{ marginRight: 1 }} /> Change Password
-          </MenuItem>
-          <MenuItem
-            component={Link}
-            to="/user/activities"
-            onClick={handleCloseMenu}
-            style={{
-              fontWeight:
-                activeRoute === "/user/activities" ? "bold" : "normal",
-              color: activeRoute === "/user/activities" ? "#5951da" : "inherit",
-            }}
-          >
-            <DashboardRounded sx={{ marginRight: 1 }} /> My Activities
-          </MenuItem>
-          <MenuItem
-            component={Link}
-            to="/user/AlertSubscriptions"
-            onClick={handleCloseMenu}
-            style={{
-              fontWeight:
-                activeRoute === "/user/AlertSubscriptions" ? "bold" : "normal",
-              color:
-                activeRoute === "/user/AlertSubscriptions"
-                  ? "#5951da"
-                  : "inherit",
-            }}
-          >
-            <Notifications sx={{ marginRight: 1 }} /> Alert Subscriptions
-          </MenuItem>
-          {/* <MenuItem
-            component={Link}
-            to="/user/mail-configuration"
-            onClick={handleCloseMenu}
-            style={{
-              fontWeight:
-                activeRoute === "/user/mail-configuration" ? "bold" : "normal",
-              color:
-                activeRoute === "/user/mail-configuration"
-                  ? "#5951da"
-                  : "inherit",
-            }}
-          >
-            <MailRounded sx={{ marginRight: 1 }} /> Mail Configuration
-          </MenuItem> */}
+          {role !== "super_user" && (
+            <>
+              <MenuItem
+                component={Link}
+                to="/user/profile"
+                onClick={handleCloseMenu}
+                style={{
+                  fontWeight:
+                    activeRoute === "/user/profile" ? "bold" : "normal",
+                  color:
+                    activeRoute === "/user/profile" ? "#5951da" : "inherit",
+                }}
+              >
+                <AccountCircleRounded sx={{ marginRight: 1 }} /> Profile
+              </MenuItem>
+              <MenuItem
+                component={Link}
+                to="/user/changepassword"
+                onClick={handleCloseMenu}
+                style={{
+                  fontWeight:
+                    activeRoute === "/user/changepassword" ? "bold" : "normal",
+                  color:
+                    activeRoute === "/user/changepassword"
+                      ? "#5951da"
+                      : "inherit",
+                }}
+              >
+                <LockRounded sx={{ marginRight: 1 }} /> Change Password
+              </MenuItem>
+              <MenuItem
+                component={Link}
+                to="/user/activities"
+                onClick={handleCloseMenu}
+                style={{
+                  fontWeight:
+                    activeRoute === "/user/activities" ? "bold" : "normal",
+                  color:
+                    activeRoute === "/user/activities" ? "#5951da" : "inherit",
+                }}
+              >
+                <DashboardRounded sx={{ marginRight: 1 }} /> My Activities
+              </MenuItem>
+              <MenuItem
+                component={Link}
+                to="/user/AlertSubscriptions"
+                onClick={handleCloseMenu}
+                style={{
+                  fontWeight:
+                    activeRoute === "/user/AlertSubscriptions"
+                      ? "bold"
+                      : "normal",
+                  color:
+                    activeRoute === "/user/AlertSubscriptions"
+                      ? "#5951da"
+                      : "inherit",
+                }}
+              >
+                <Notifications sx={{ marginRight: 1 }} /> Alert Subscriptions
+              </MenuItem>
+            </>
+          )}
+
           <MenuItem onClick={logout}>
             <LogoutRounded sx={{ marginRight: 1, color: "red" }} /> Logout
           </MenuItem>

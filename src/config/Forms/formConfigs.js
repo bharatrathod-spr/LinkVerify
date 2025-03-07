@@ -427,7 +427,7 @@ const user = {
   fields: [
     {
       name: "FirstName",
-      label: "First Name",
+      label: "First Name*",
       type: "text",
       placeholder: "Enter first name",
       grid: 6,
@@ -435,31 +435,31 @@ const user = {
     },
     {
       name: "LastName",
-      label: "Last Name",
+      label: "Last Name*",
       type: "text",
       placeholder: "Enter last name",
       grid: 6,
       icon: Person,
     },
     {
-      name: "EmailAddress",
-      label: "Email",
-      type: "email",
-      placeholder: "Enter email",
-      grid: 6,
-      icon: Email,
-    },
-    {
       name: "PhoneNumber",
-      label: "Phone Number",
+      label: "Phone Number*",
       type: "text",
-      placeholder: "Enter phone number",
+      placeholder: "Enter Your Phone Number",
       grid: 6,
       icon: Phone,
     },
     {
+      name: "EmailAddress",
+      label: "Email*",
+      type: "email",
+      placeholder: "Enter Email Address",
+      grid: 6,
+      icon: Email,
+    },
+    {
       name: "Password",
-      label: "Password",
+      label: "Password*",
       type: "password",
       placeholder: "Enter password",
       grid: 6,
@@ -467,28 +467,81 @@ const user = {
     },
     {
       name: "ConfirmPassword",
-      label: "Confirm Password",
+      label: "Confirm Password*",
       type: "password",
       placeholder: "Re-enter password",
       grid: 6,
       icon: Lock,
     },
+    {
+      name: "UserDetails.Address",
+      label: "Address*",
+      type: "text",
+      placeholder: "Enter Your Address",
+      grid: 6,
+      icon: Home,
+    },
+    {
+      name: "UserDetails.City",
+      label: "City*",
+      type: "text",
+      placeholder: "Enter Your City",
+      grid: 6,
+      icon: LocationCity,
+    },
+    {
+      name: "UserDetails.State",
+      label: "State*",
+      type: "text",
+      placeholder: "Enter Your State",
+      grid: 6,
+      icon: LocationCity,
+    },
+
+    {
+      name: "UserDetails.PostalCode",
+      label: "PostalCode*",
+      type: "text",
+      placeholder: "Enter Your Postal Code",
+      grid: 6,
+      icon: Home,
+    },
+    {
+      name: "UserDetails.Country",
+      label: "Country*",
+      type: "text",
+      placeholder: "Enter Your Country",
+      grid: 6,
+      icon: Public,
+    },
   ],
-  validationSchema: Yup.object({
+  validationSchema: Yup.object().shape({
     FirstName: Yup.string().required("First name is required"),
     LastName: Yup.string().required("Last name is required"),
+    PhoneNumber: Yup.string().required("Phone Number is required"),
     EmailAddress: Yup.string()
+      .trim()
+      .lowercase()
+      .matches(
+        /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+        "Invalid email format"
+      )
       .email("Invalid email")
       .required("Email is required"),
-    PhoneNumber: Yup.string().matches(
-      /^\d{10}$/,
-      "Phone number must be 10 digits"
-    ),
+
     Password: passwordValidationSchema,
     ConfirmPassword: Yup.string()
       .oneOf([Yup.ref("Password"), null], "Passwords must match")
       .required("Confirm Password is required"),
+    UserDetails: Yup.object({
+      Address: Yup.string().required("Address is required"),
+      City: Yup.string().required("City is required"),
+      State: Yup.string().required("State is required"),
+      Country: Yup.string().required("Country is required"),
+      PostalCode: Yup.string().required("Postal Code is required"),
+    }),
   }),
+
   buttons: [
     {
       label: "Save",

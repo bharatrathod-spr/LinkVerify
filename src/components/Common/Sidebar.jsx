@@ -15,7 +15,7 @@ import { Link, useLocation } from "react-router-dom";
 import routes from "../../helpers/routes";
 import useMobileDrawer from "../../hooks/useMobileDrawer";
 import "./Sidebar.css";
-import logo from "../../assets/svg/logo.png";
+import logo from "../../assets/svg/logo.svg";
 import {
   NotificationsRounded,
   AccountCircleRounded,

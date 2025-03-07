@@ -102,7 +102,7 @@ function ResponseTimeGraph({ data, title }) {
         {profiles.map(
           ({ profileKey, validationProfileId, description }, index) => (
             <Grid item key={profileKey} xs={12} sm={6} md={4}>
-              <Typography
+              <Typography 
                 variant="body2"
                 component={Link}
                 to={"/user/validation-profile-details"}

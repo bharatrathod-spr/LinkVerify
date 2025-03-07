@@ -37,7 +37,7 @@ const getUser = async (req, res) => {
   const { UserId } = req.user;
   try {
     const user = await getUserById(UserId);
-
+ 
     if (!user) {
       return res.status(404).json({ error: "User not found" });
     }

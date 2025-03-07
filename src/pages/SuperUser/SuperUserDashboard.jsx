@@ -3,20 +3,18 @@ import { Box, Typography, Grid, Card, CardContent, Stack } from "@mui/material";
 import { useDashboard } from "../../hooks/useDashboard";
 import Loader from "../../components/Common/Loader";
 import {
-  Bar,
-  BarChart,
+  AreaChart,
+  Area,
   CartesianGrid,
-  Legend,
-  ResponsiveContainer,
-  Tooltip,
   XAxis,
   YAxis,
+  Tooltip,
+  ResponsiveContainer,
+  Legend,
 } from "recharts";
 import SuperUserCard from "../../components/Cards/SuperUserCard";
 import { People, PersonOff } from "@mui/icons-material";
 import NoDataImage from "../../assets/svg/NoData.png";
-import WidgetsRounded from "@mui/icons-material/WidgetsRounded";
-
 
 const SuperUserDashboard = () => {
   const { graphdata, loading, error, userCount } = useDashboard();
@@ -33,19 +31,21 @@ const SuperUserDashboard = () => {
   );
 
   return (
-    <Box sx={{ p: 4 }}>
+    <Box sx={{ p: 4, backgroundColor: "#F4F7FC", minHeight: "100vh" }}>
       <Box
         sx={{
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
-          paddingBottom: 1,
+          pb: 2,
         }}
       >
         <Stack direction="row" spacing={1} alignItems="center">
-          <WidgetsRounded sx={{ color: "#1976d2", fontSize: 28 }} />
-          <Typography variant="h5" gutterBottom>
-            Dashboard
+          <Typography
+            variant="h5"
+            sx={{ fontWeight: "bold", color: "primary.main" }}
+          >
+            Super User Dashboard
           </Typography>
         </Stack>
       </Box>
@@ -53,45 +53,111 @@ const SuperUserDashboard = () => {
       {loading ? (
         <Loader />
       ) : error ? (
-        <Typography variant="body1" align="center">
+        <Box sx={{ textAlign: "center" }}>
           <img
             src={NoDataImage}
             alt="No Data"
-            style={{ width: "200px", height: "250px" }}
+            style={{ width: "250px", height: "250px" }}
           />
-        </Typography>
+        </Box>
       ) : !graphdata || !Array.isArray(graphdata) ? (
         <Typography variant="body1" align="center">
           Something went wrong, try again!
         </Typography>
       ) : (
         <Grid container spacing={3} sx={{ marginTop: 2 }}>
-          <Grid item xs={12} md={6}>
-            <Card>
+          <Grid item xs={12} md={8}>
+            <Card
+              sx={{
+                background: "rgba(255, 255, 255, 0.9)",
+                backdropFilter: "blur(10px)",
+                boxShadow: "0px 4px 20px rgba(0, 0, 0, 0.1)",
+                borderRadius: "12px",
+                p: 2,
+              }}
+            >
               <CardContent>
-                <Typography variant="h6">Users Counts by Month</Typography>
-                <ResponsiveContainer width="100%" height={300}>
-                  <BarChart
+                <Typography
+                  variant="h6"
+                  sx={{
+                    fontWeight: "bold",
+                    mb: 2,
+                  }}
+                >
+                  Users Growth Over Time
+                </Typography>
+                <ResponsiveContainer width="100%" height={350}>
+                  <AreaChart
                     data={graphdata}
-                    margin={{
-                      top: 5,
-                      right: 20,
-                      left: 10,
-                      bottom: 5,
-                    }}
+                    margin={{ top: 10, right: 30, left: 10, bottom: 5 }}
                   >
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="month" />
+                    <defs>
+                      <linearGradient
+                        id="colorThisYear"
+                        x1="0"
+                        y1="0"
+                        x2="0"
+                        y2="1"
+                      >
+                        <stop
+                          offset="5%"
+                          stopColor="#3B82F6"
+                          stopOpacity={0.8}
+                        />
+                        <stop
+                          offset="95%"
+                          stopColor="#3B82F6"
+                          stopOpacity={0}
+                        />
+                      </linearGradient>
+                      <linearGradient
+                        id="colorLastYear"
+                        x1="0"
+                        y1="0"
+                        x2="0"
+                        y2="1"
+                      >
+                        <stop
+                          offset="5%"
+                          stopColor="#FF7043"
+                          stopOpacity={0.8}
+                        />
+                        <stop
+                          offset="95%"
+                          stopColor="#FF7043"
+                          stopOpacity={0}
+                        />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+                    <XAxis dataKey="month" stroke="#6B7280" />
                     <YAxis
                       domain={[0, domainMax]}
                       ticks={ticks}
-                      // allowDecimals={false}
+                      stroke="#6B7280"
                     />
-                    <Tooltip />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: "rgba(255,255,255,0.9)",
+                        borderRadius: "8px",
+                      }}
+                    />
                     <Legend />
-                    <Bar dataKey="thisYear" stackId="a" fill="#8884d8" />
-                    <Bar dataKey="lastYear" stackId="a" fill="#82ca9d" />
-                  </BarChart>
+                    <Area
+                      type="monotone"
+                      dataKey="thisYear"
+                      stroke="#3B82F6"
+                      fillOpacity={1}
+                      fill="url(#colorThisYear)"
+                    />
+                    <Area
+                      type="monotone"
+                      dataKey="lastYear"
+                      stroke="#FF7043"
+                      fillOpacity={1}
+                      fill="url(#colorLastYear)"
+                    />
+                  </AreaChart>
                 </ResponsiveContainer>
               </CardContent>
             </Card>

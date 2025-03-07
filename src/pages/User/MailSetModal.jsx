@@ -71,7 +71,9 @@ const MailSetModal = ({ open, handleClose, setSubscriptionState }) => {
     }
     try {
       await dispatch(updateMailConfig({ selectedConfigId }));
-      toast.success("Mail configuration and subscription updated successfully.");
+      toast.success(
+        "Mail configuration and subscription updated successfully."
+      );
 
       const response = await dispatch(fetchUserAlerts(userId));
 
@@ -81,10 +83,7 @@ const MailSetModal = ({ open, handleClose, setSubscriptionState }) => {
 
       if (emailAlert && emailAlert.Subscriber === false) {
         await dispatch(toggleSubscription("email"));
-        // toast.success("Subscription successful!");
         setSubscriptionState((prev) => ({ ...prev, Email: true }));
-      } else {
-        // console.log("Skipping toggleSubscription, Subscriber is already true.");
       }
 
       handleClose();

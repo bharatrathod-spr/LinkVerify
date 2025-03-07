@@ -13,7 +13,7 @@ const UserModal = ({ open, onClose, user }) => {
       onClose={() => {
         onClose();
       }}
-      maxWidth="sm"
+      maxWidth="md"
       fullWidth
       aria-labelledby="user-modal-title"
       aria-describedby="user-modal-description"
@@ -22,9 +22,10 @@ const UserModal = ({ open, onClose, user }) => {
         <Loader />
       ) : (
         <DialogContent>
-          <DialogTitle id="user-modal-title" sx={{ px: 0, pt: 0 }} variant="h6">
+          <DialogTitle id="user-modal-title" sx={{ px: 0, pt: 0, color:"primary.main" }} variant="h6">
             {user.UserId ? "Update User Details" : "Add User Details"}
           </DialogTitle>
+          
           <UserForm
             initialValues={user}
             onClose={onClose}

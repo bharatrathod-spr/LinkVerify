@@ -1,8 +1,8 @@
 const User = require("../models/userModel");
 
 // Get all users
-const getAllUsers = async (filter) => {
-  return await User.find(filter);
+const getAllUsers = async () => {
+  return await User.find({ IsDelete: false, Role: "user" });
 };
 
 // Save new user
@@ -42,6 +42,7 @@ const getUserByEmail = async (email) => {
     return await User.findOne({
       EmailAddress: email,
       IsDelete: false,
+      IsActive: true,
     });
   } catch (error) {
     throw new Error("Error fetching user");

@@ -11,6 +11,7 @@ const Users = require("../models/userModel");
 const Profiles = require("../models/profileModel");
 const ProfileCount = require("../models/profileCountModel");
 const AlertSubscription = require("../models/alertModel");
+const ValidationLogs = require("../models/logsModel");
 
 // Controllers
 const { createLog } = require("../controllers/logsController");
@@ -365,6 +366,22 @@ const cronjob = async () => {
     log(`Error during cron job: ${error.message}`);
   }
 };
+
+// Function to delete validation-logs records older than 700 days
+async function cleanupOldValidationLogs() {
+  const cutoffDate = moment().subtract(700, 'days').toDate();
+
+  try {
+    const result = await ValidationLogs.updateMany({ createdAt: { $lt: cutoffDate } }, { $set: { IsDelete: true } });
+    log(`Updated ${result.modifiedCount} validation logs to set IsDelete to true.`);
+  } catch (error) {
+    log(`Error deleting old validation logs: ${error.message}`);
+  }
+}
+
+cron.schedule('0 0 * * *', () => {
+  cleanupOldValidationLogs();
+});
 
 cron.schedule("*/1 * * * *", () => {
   cronjob();

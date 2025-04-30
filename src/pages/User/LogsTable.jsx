@@ -14,8 +14,8 @@ const headerData = [
     width: "21%",
     isOverflow: true,
   },
-  { field: "Follow", label: "Is Follow", width: "10%" },
-  { field: "Index", label: "Is Index", width: "10%" },
+  // { field: "Follow", label: "Is Follow", width: "10%" },
+  // { field: "Index", label: "Is Index", width: "10%" },
   { field: "IsSuccess", label: "Is Success", width: "10%" },
   { field: "createdAt", label: "Created At", width: "13%" },
 ];
@@ -79,7 +79,7 @@ const LogsTable = () => {
             color="primary"
             sx={{ fontWeight: "bold" }}
           >
-            Audit Logs
+            Track Logs
           </Typography>
         </Stack>
       </Box>

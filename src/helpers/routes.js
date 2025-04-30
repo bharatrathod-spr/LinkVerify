@@ -66,19 +66,19 @@ const routes = [
         keywords: "dashboard, user dashboard, SEO tools, link tracking",
       },
       {
-        title: "URL Audit Profile",
-        path: "url-audit-profile",
+        title: "My Backlinks",
+        path: "my-backlinks",
         component: pages.ProfileTable,
         icon: Assessment,
         isDisplay: true,
         description:
-          "View and manage your website's URL Audit Profiles. Track and analyze SEO link data effortlessly.",
+          "View and manage your website's My Backlinks. Track and analyze SEO link data effortlessly.",
         keywords:
-          "validation profile,URL Audit Profile, SEO link management, profile tracking",
+          "my backlinks,My Backlinks, SEO link management, profile tracking",
       },
       {
-        title: "Audit Logs",
-        path: "audit-logs",
+        title: "Track Logs",
+        path: "track-logs",
         component: pages.LogsTable,
         icon: Event,
         isDisplay: true,
@@ -88,11 +88,11 @@ const routes = [
           "validation logs,Audit Logs, SEO logs, link tracking logs, performance logs",
       },
       {
-        title: "URL Audit Profile Details",
-        path: "validation-profile-details",
+        title: "My Backlinks Details",
+        path: "my-backlinks-details",
         component: pages.ProfileDetail,
         description:
-          "Explore detailed information about specific URL Audit Profiles. Optimize link performance effectively.",
+          "Explore detailed information about specific My Backlinks. Optimize link performance effectively.",
         keywords:
           "profile details, validation details, SEO analysis, link optimization",
       },

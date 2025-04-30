@@ -92,7 +92,7 @@ const ProfileDetail = () => {
               </Avatar>
               <Box>
                 <Typography variant="h5" sx={{ fontWeight: "bold", mb: 0.5 }}>
-                  URL Audit Details
+                  My Backlinks Details
                 </Typography>
                 <Typography variant="body2" sx={{ opacity: 0.9 }}>
                   Comprehensive analysis of your backlink validation

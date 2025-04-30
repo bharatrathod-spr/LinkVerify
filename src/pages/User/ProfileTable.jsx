@@ -33,17 +33,17 @@ const headerData = [
     width: "13%",
     isOverflow: true,
   },
-  { field: "SourceLink", label: "Site/Page To Crawl", width: "18%", isOverflow: true },
-  { field: "SearchLink", label: "Backlink to Track", width: "18%", isOverflow: true },
-  { field: "CronExpression", label: "Cron Expression", width: "12%" },
-  { field: "LastErrorAt", label: "Last Error At", width: "12%" },
-  { field: "LastSuccessAt", label: "Last Success At", width: "12%" },
+  { field: "SourceLink", label: "Site/Page Crawled", width: "18%", isOverflow: true },
+  { field: "SearchLink", label: "Tracked Backlink", width: "18%", isOverflow: true },
+  // { field: "CronExpression", label: "Cron Expression", width: "12%" },
+  { field: "LastErrorAt", label: "No Backlinks Found", width: "12%" },
+  { field: "LastSuccessAt", label: "Backlinks Found", width: "12%" },
   { field: "actions", label: "Actions", width: "15%", align: "center" },
 ];
 
 const mobileHeaderData = [
-  { field: "SourceLink", label: "Site/Page To Crawl", width: "35%" },
-  { field: "SearchLink", label: "Backlink to Track", width: "30%" },
+  { field: "SourceLink", label: "Site/Page Crawled", width: "35%" },
+  { field: "SearchLink", label: "Tracked Backlink", width: "30%" },
   { field: "actions", label: "Actions", width: "35%", align: "center" },
 ];
 
@@ -93,7 +93,7 @@ const ProfileTable = () => {
           <IconButton
             color="primary"
             component={Link}
-            to="/user/validation-profile-details"
+            to="/user/my-backlinks-details"
             state={{ ValidationProfileId: profile.ValidationProfileId }}
           >
             <Visibility />
@@ -140,7 +140,7 @@ const ProfileTable = () => {
               color="primary"
               sx={{ fontWeight: "bold" }}
             >
-              URL Audit Profile
+              My Backlinks
             </Typography>
           </Stack>
         </Box>
@@ -150,7 +150,7 @@ const ProfileTable = () => {
           startIcon={<AddCircleOutline />}
           onClick={toggleModel}
         >
-          Add URL Audit Profile
+          Add Backlinks
         </Button>
       </Box>
       {loading && !profiles ? (

@@ -91,7 +91,7 @@ function SuccessFailureGraph({ data, title }) {
             <Typography
               variant="body2"
               component={Link}
-              to="/user/validation-profile-details"
+              to="/user/my-backlinks-details"
               state={{ ValidationProfileId: id }}
               sx={{
                 display: "block",

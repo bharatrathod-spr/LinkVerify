@@ -71,8 +71,8 @@ const ProfileModal = ({ open, onClose, profileId }) => {
             sx={{ display: "inline-block", pb: 0.5 }}
           >
             {selectedProfile
-              ? "Edit URL Audit Profile"
-              : "Add URL Audit Profile"}
+              ? "Edit Backlinks"
+              : "Add Backlinks"}
           </Typography>
         </Box>
         <IconButton onClick={onClose} sx={{ color: "text.primary" }}>

@@ -105,7 +105,7 @@ function ResponseTimeGraph({ data, title }) {
               <Typography
                 variant="body2"
                 component={Link}
-                to={"/user/validation-profile-details"}
+                to={"/user/my-backlinks-details"}
                 state={{ ValidationProfileId: validationProfileId }}
                 sx={{
                   display: "block",

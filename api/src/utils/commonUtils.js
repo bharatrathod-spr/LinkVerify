@@ -49,7 +49,7 @@ const sendEmail = async (to, subject, text = "", htmlContent = "") => {
   });
 
   const mailOptions = {
-    from: `"LinkVerify" <${process.env.EMAIL_USER}>`,
+    from: `"TrackBacklinks" <${process.env.EMAIL_USER}>`,
     to,
     subject,
     text: text,

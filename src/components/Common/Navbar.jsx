@@ -75,7 +75,7 @@ const Navbar = ({ role }) => {
         >
           <img src={logo || "/placeholder.svg"} alt="Logo" style={{ width: 200, height: 70, marginRight: 8 }} />
           {/* <Typography variant="h6" fontWeight="bold" color="primary">
-            LinkVerify
+            TrackBacklinks
           </Typography> */}
         </Link>
 

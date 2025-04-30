@@ -80,7 +80,7 @@ const Sidebar = ({ role }) => {
         >
           <img src={logo} alt="Logo" style={{ width: 40, height: 40 }} />
           <Typography variant="h6" align="center">
-            LinkVerify
+            TrackBacklinks
           </Typography>
         </Link>
       </Box>

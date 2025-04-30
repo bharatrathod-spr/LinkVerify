@@ -32,7 +32,7 @@ const UserDashboard = () => {
         elevation={3}
         sx={{
           p: 2,
-          mb: 3,
+          my: 3,
           borderRadius: "8px",
           animation: isVisible ? "fadeIn 1s ease-in-out" : "none",
         }}

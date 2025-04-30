@@ -1,6 +1,6 @@
 import { Box } from "@mui/material";
 import React from "react";
-import logo from "../../assets/svg/logo.png";
+import logo from "../../assets/svg/logo.svg";
 
 const LogoLoader = ({ height = "300px" }) => {
   return (

@@ -316,23 +316,23 @@ const profile = {
   fields: [
     {
       name: "Description",
-      label: "Description",
+      label: "Name Of Your Item",
       type: "textarea",
-      placeholder: "Enter Description For Profile",
+      placeholder: "Enter Name Of Your Item For Profile",
       grid: 12,
     },
     {
       name: "SourceLink",
-      label: "Source Link",
+      label: "Site/Page To Crawl",
       type: "text",
-      placeholder: "Enter Your Source Link",
+      placeholder: "Enter Your Site/Page To Crawl",
       grid: 6,
     },
     {
       name: "SearchLink",
-      label: "Search Link",
+      label: "Backlink to Track",
       type: "text",
-      placeholder: "Enter Your Search Link",
+      placeholder: "Enter Your Backlink to Track",
       grid: 6,
     },
     {
@@ -360,9 +360,9 @@ const profile = {
   validationSchema: Yup.object().shape({
     SourceLink: Yup.string()
       .url("Invalid Link")
-      .required("Source Link is required"),
-    SearchLink: Yup.string().required("Search Link is required"),
-    Description: Yup.string().required("Description is required"),
+      .required("Site/Page To Crawl is required"),
+    SearchLink: Yup.string().required("Backlink to Track is required"),
+    Description: Yup.string().required("Name of your item is required"),
     cronExpression: Yup.object().shape({
       occurrence: Yup.number()
         .required("Frequency is required")

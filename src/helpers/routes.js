@@ -148,7 +148,7 @@ const routes = [
     pages: [
       {
         title: "Dashboard",
-        path: "",
+        path: "dashboard",
         component: pages.SuperUserDashboard,
         icon: WidgetsRounded,
         isDisplay: true,

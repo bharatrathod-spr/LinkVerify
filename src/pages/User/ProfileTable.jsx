@@ -29,12 +29,12 @@ import Loader from "../../components/Common/Loader";
 const headerData = [
   {
     field: "Description",
-    label: "Description",
+    label: "Name Of Your Item",
     width: "13%",
     isOverflow: true,
   },
-  { field: "SourceLink", label: "Source Link", width: "18%", isOverflow: true },
-  { field: "SearchLink", label: "Search Link", width: "18%", isOverflow: true },
+  { field: "SourceLink", label: "Site/Page To Crawl", width: "18%", isOverflow: true },
+  { field: "SearchLink", label: "Backlink to Track", width: "18%", isOverflow: true },
   { field: "CronExpression", label: "Cron Expression", width: "12%" },
   { field: "LastErrorAt", label: "Last Error At", width: "12%" },
   { field: "LastSuccessAt", label: "Last Success At", width: "12%" },
@@ -42,8 +42,8 @@ const headerData = [
 ];
 
 const mobileHeaderData = [
-  { field: "SourceLink", label: "Source Link", width: "35%" },
-  { field: "SearchLink", label: "Search Link", width: "30%" },
+  { field: "SourceLink", label: "Site/Page To Crawl", width: "35%" },
+  { field: "SearchLink", label: "Backlink to Track", width: "30%" },
   { field: "actions", label: "Actions", width: "35%", align: "center" },
 ];
 
@@ -167,13 +167,13 @@ const ProfileTable = () => {
               actions: renderActions(item),
               LastErrorAt: item.LastErrorAt
                 ? moment(new Date(item.LastErrorAt)).format(
-                    "YYYY-MM-DD HH:mm:ss"
-                  )
+                  "YYYY-MM-DD HH:mm:ss"
+                )
                 : "",
               LastSuccessAt: item.LastSuccessAt
                 ? moment(new Date(item.LastSuccessAt)).format(
-                    "YYYY-MM-DD HH:mm:ss"
-                  )
+                  "YYYY-MM-DD HH:mm:ss"
+                )
                 : "",
             }))}
             sortingList={[

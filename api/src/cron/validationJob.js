@@ -274,7 +274,7 @@ const cronjob = async () => {
 
       for (const profile of profiles) {
         const { SourceLink, SearchLink, CronExpression } = profile;
-        
+
         log(`Processing validation profile: ${profile.ValidationProfileId}`);
 
         log(
@@ -366,8 +366,8 @@ const cronjob = async () => {
   }
 };
 
-// cron.schedule("*/1 * * * *", () => {
-//   cronjob();
-// });
+cron.schedule("*/1 * * * *", () => {
+  cronjob();
+});
 
 module.exports = cron;

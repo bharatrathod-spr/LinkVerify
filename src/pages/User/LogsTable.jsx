@@ -6,8 +6,8 @@ import { useLogs } from "../../hooks/useLogs";
 import Loader from "../../components/Common/Loader";
 import HistoryIcon from "@mui/icons-material/History";
 const headerData = [
-  { field: "SourceLink", label: "Source Link", width: "18%", isOverflow: true },
-  { field: "SearchLink", label: "Search Link", width: "18%", isOverflow: true },
+  { field: "SourceLink", label: "Site/Page To Crawl", width: "18%", isOverflow: true },
+  { field: "SearchLink", label: "Backlink to Track", width: "18%", isOverflow: true },
   {
     field: "FailureReasons",
     label: "Error Message",
@@ -21,8 +21,8 @@ const headerData = [
 ];
 
 const mobileHeaderData = [
-  { field: "SourceLink", label: "Source Link", width: "35%" },
-  { field: "SearchLink", label: "Search Link", width: "35%" },
+  { field: "SourceLink", label: "Site/Page To Crawl", width: "35%" },
+  { field: "SearchLink", label: "Backlink to Track", width: "35%" },
   { field: "createdAt", label: "Created At", width: "30%" },
 ];
 

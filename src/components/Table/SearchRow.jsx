@@ -3,6 +3,7 @@ import { Box, TextField, MenuItem, Grid, InputAdornment } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 
 const SearchRow = ({
+  headerData,
   dropdownSearchFields,
   dropdownSearch,
   setDropdownSearch,
@@ -53,44 +54,47 @@ const SearchRow = ({
           />
         </Grid>
 
-        {dropdownSearchFields.map((field, i) => (
-          <Grid item xs={12} sm={6} md={4} lg={3} key={i}>
-            <TextField
-              select
-              label={`Select ${field.charAt(0).toUpperCase() + field.slice(1)}`}
-              value={dropdownSearch[field] || ""}
-              onChange={(e) =>
-                setDropdownSearch((prev) => ({
-                  ...prev,
-                  [field]: e.target.value,
-                }))
-              }
-              size="small"
-              fullWidth
-              SelectProps={{
-                MenuProps: {
-                  PaperProps: {
-                    style: {
-                      maxHeight: 200,
-                      overflowY: "auto",
+        {dropdownSearchFields.map((field, i) => {
+          const header = headerData.find((h) => h.field === field);
+          return (
+            <Grid item xs={12} sm={6} md={4} lg={3} key={i}>
+              <TextField
+                select
+                label={header ? `Select ${header.label}` : `Select ${field.charAt(0).toUpperCase() + field.slice(1)}`}
+                value={dropdownSearch[field] || ""}
+                onChange={(e) =>
+                  setDropdownSearch((prev) => ({
+                    ...prev,
+                    [field]: e.target.value,
+                  }))
+                }
+                size="small"
+                fullWidth
+                SelectProps={{
+                  MenuProps: {
+                    PaperProps: {
+                      style: {
+                        maxHeight: 200,
+                        overflowY: "auto",
+                      },
                     },
                   },
-                },
-              }}
-              sx={{
-                backgroundColor: "#f9f9f9",
-                borderRadius: "8px",
-              }}
-            >
-              <MenuItem value="">All</MenuItem>
-              {getDropdownOptions(field).map((option, index) => (
-                <MenuItem key={index} value={option}>
-                  {option}
-                </MenuItem>
-              ))}
-            </TextField>
-          </Grid>
-        ))}
+                }}
+                sx={{
+                  backgroundColor: "#f9f9f9",
+                  borderRadius: "8px",
+                }}
+              >
+                <MenuItem value="">All</MenuItem>
+                {getDropdownOptions(field).map((option, index) => (
+                  <MenuItem key={index} value={option}>
+                    {option}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </Grid>
+          );
+        })}
 
         {dateFilterField && (
           <>

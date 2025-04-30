@@ -47,10 +47,10 @@ const sendFailureReasonsMail = async (
           </p>
           <div style="margin-bottom: 15px;">
             <p style="font-size: 15px; margin: 5px 0;">
-              <b>Source Link:</b> <a href="${sourceUrl}" style="color: #3498db; text-decoration: none;">${sourceUrl}</a>
+              <b>Site/Page To Crawl:</b> <a href="${sourceUrl}" style="color: #3498db; text-decoration: none;">${sourceUrl}</a>
             </p>
             <p style="font-size: 15px; margin: 5px 0;">
-              <b>Search Link:</b> <a href="${searchUrl}" style="color: #3498db; text-decoration: none;">${searchUrl}</a>
+              <b>Backlink to Track:</b> <a href="${searchUrl}" style="color: #3498db; text-decoration: none;">${searchUrl}</a>
             </p>
           </div>
           <p style="font-size: 15px; margin-bottom: 10px;">Failure Reasons:</p>

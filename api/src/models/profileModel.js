@@ -41,6 +41,7 @@ const validationProfileSchema = new Schema(
     CronExpression: {
       type: String,
       required: true,
+      default: "7 days",
     },
 
     LastErrorAt: {

@@ -15,7 +15,7 @@ import { Link, useLocation } from "react-router-dom";
 import routes from "../../helpers/routes";
 import useMobileDrawer from "../../hooks/useMobileDrawer";
 import "./Sidebar.css";
-import logo from "../../assets/svg/logo.png";
+import logo from "../../assets/svg/logo2.svg";
 import {
   NotificationsRounded,
   AccountCircleRounded,
@@ -93,9 +93,8 @@ const Sidebar = ({ role }) => {
               id={`list-${index}`}
               component={Link}
               to={`/${role}/${link.path || ""}`}
-              className={`sidebar-link ${
-                activeRoute === `/${role}/${link.path}` ? "active" : ""
-              }`}
+              className={`sidebar-link ${activeRoute === `/${role}/${link.path}` ? "active" : ""
+                }`}
               onClick={() => {
                 if (isMobile) toggleDrawer();
               }}

@@ -87,14 +87,19 @@ const ProfileModal = ({ open, onClose, profileId }) => {
           </Box>
         ) : (
           <ProfileForm
-            initialValues={selectedProfile}
+            initialValues={{
+              ...selectedProfile,
+              cronExpression: {
+                occurrence: selectedProfile?.cronExpression?.occurrence || 7,
+                period: selectedProfile?.cronExpression?.period || 'days',
+              },
+            }}
             onClose={onClose}
             handleSubmit={(values) => {
               const profileData = {
                 ...values,
-                CronExpression: `${values.cronExpression?.occurrence || ""} ${
-                  values.cronExpression?.period || ""
-                }`,
+                CronExpression: `${values.cronExpression?.occurrence || 7} ${values.cronExpression?.period || 'days'
+                  }`,
               };
               profileId
                 ? handleUpdate(profileId, profileData)

@@ -320,6 +320,7 @@ const profile = {
       type: "textarea",
       placeholder: "Enter Name Of Your Item For Profile",
       grid: 12,
+      
     },
     {
       name: "SourceLink",
@@ -340,6 +341,7 @@ const profile = {
       label: "Frequency",
       type: "number",
       placeholder: "Enter Frequency",
+      readOnly: true,
       grid: 6,
     },
     {
@@ -347,6 +349,7 @@ const profile = {
       label: "Duration",
       type: "select",
       placeholder: "Select a Duration",
+      readOnly: true,
       grid: 6,
       options: [
         { value: "minutes", label: "Minutes" },

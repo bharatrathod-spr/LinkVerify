@@ -121,6 +121,7 @@ const DynamicForm = ({
                             getIn(errors, field.name)
                           }
                           field={field}
+                          readOnly={field.readOnly}
                         />
                       ) : (
                         <Input
@@ -136,6 +137,7 @@ const DynamicForm = ({
                             getIn(touched, field.name) &&
                             getIn(errors, field.name)
                           }
+                          readOnly={field.readOnly}
                         />
                       )
                     }

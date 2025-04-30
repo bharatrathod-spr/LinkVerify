@@ -54,6 +54,7 @@ const Input = ({ field, ...formikField }) => {
         InputLabelProps={{
           shrink: true,
         }}
+        disabled={field.readOnly}
       />
     </FormGroup>
   );

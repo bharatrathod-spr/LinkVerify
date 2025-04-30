@@ -129,7 +129,7 @@ const Navbar = ({ role }) => {
         </Box>
 
         <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-          <IconButton color="inherit" onClick={handleOpenMenu}>
+          <IconButton color="inherit" onClick={handleOpenMenu} style={{ backgroundColor: "transparent" }}>
             <Avatar
               sx={{
                 width: 40,
@@ -159,12 +159,6 @@ const Navbar = ({ role }) => {
               <Typography variant="body1" sx={{ fontWeight: "bold" }}>
                 {user?.FirstName} {user?.LastName}
               </Typography>
-              {/* <Typography
-                variant="body2"
-                sx={{ fontWeight: "normal", color: "White" }}
-              >
-                {user?.Role}
-              </Typography> */}
             </Box>
           </IconButton>
 
